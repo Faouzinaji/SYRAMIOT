@@ -1,0 +1,187 @@
+{% extends 'base2.html' %}
+{% load static %}
+{% block title %}
+Add Device
+{% endblock %}
+{% block content %}
+
+<body class="skin-blue">
+<div class="wrapper">
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                Order Device
+                <small>Order Device</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="{% url 'dashboard' %}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+
+
+                <li class="active">Order Device</li>
+            </ol>
+        </section>
+
+
+        <section class="content">
+
+
+            <form action="{% url 'order_device' %}" METHOD="post">
+
+                <h5 style="text-decoration:#00a65a">{% include '_messages.html' %}</h5>
+                {% csrf_token %}
+                <div class="row">
+                    <div id="address">
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="name">FullName:</label>
+                                <input type="text" class="form-control" name="name" id="name" placeholder="Full Name"
+                                       required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="ph_no">Phone Number:</label>
+                                <input class="form-control" type="number" name="ph_no" min="0" id="ph_no"
+
+                                       placeholder="Phone Number" required>
+
+                            </div>
+
+                            <div class="form-group">
+                                <label for="no_of_devices">Number Of Devices:</label>
+                                <input class="form-control" type="number" name="no_of_devices" min="0"
+                                       id="no_of_devices"
+
+                                       placeholder="Number Of Devices" required>
+
+                            </div>
+
+                            <div class="form-group">
+                                <label>Devices Delivery Address:</label>
+
+                                <input id="autocomplete" placeholder="Enter your address" name="delivery_address"
+                                       onFocus="geolocate()" type="text" class="form-control" required>
+
+                            </div>
+                                <div class="form-group">
+                                <label class="control-label">Street address</label>
+                                <input class="form-control" name="street_number" id="street_number" disabled="true"
+                                       required>
+                            </div>
+
+
+
+                        </div>
+                        <div class="col-md-6">
+                                <div class="form-group">
+                                <label class="control-label">Route</label>
+                                <input class="form-control" name="route" id="route" disabled="true" required>
+                            </div>
+
+
+                            <div class="form-group">
+                                <label class="control-label">City</label>
+                                <input class="form-control field" name="city" id="locality" disabled="true" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">State</label>
+                                <input class="form-control" name="state" id="administrative_area_level_1"
+                                       disabled="true" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">Zip code</label>
+                                <input class="form-control" name="zip_code" id="postal_code" disabled="true" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">Country</label>
+                                <input class="form-control" name="country" id="country" disabled="true" required>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                                <small><a href="/dashboard/active_devices" class="btn btn-md btn-danger text-white"
+                                          id="delete_btn">Cancel</a></small>
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </form>
+
+
+        </section>
+
+
+    </div>
+</div>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAfIFQFEGJ3snlXb8VnRK06CJMYrUiFppI&libraries=places&callback=initAutocomplete"
+        async defer></script>
+
+<script>
+    var placeSearch, autocomplete;
+    var componentForm = {
+        street_number: 'short_name',
+        route: 'long_name',
+        locality: 'long_name',
+        administrative_area_level_1: 'short_name',
+        country: 'long_name',
+        postal_code: 'short_name'
+    };
+
+    function initAutocomplete() {
+        // Create the autocomplete object, restricting the search to geographical
+        // location types.
+        autocomplete = new google.maps.places.Autocomplete(
+            /** @type {!HTMLInputElement} */(document.getElementById('autocomplete')),
+            {types: ['geocode']});
+
+        // When the user selects an address from the dropdown, populate the address
+        // fields in the form.
+        autocomplete.addListener('place_changed', fillInAddress);
+    }
+
+    function fillInAddress() {
+        // Get the place details from the autocomplete object.
+        var place = autocomplete.getPlace();
+
+        for (var component in componentForm) {
+            document.getElementById(component).value = '';
+            document.getElementById(component).disabled = false;
+        }
+
+        // Get each component of the address from the place details
+        // and fill the corresponding field on the form.
+        for (var i = 0; i < place.address_components.length; i++) {
+            var addressType = place.address_components[i].types[0];
+            if (componentForm[addressType]) {
+                var val = place.address_components[i][componentForm[addressType]];
+                document.getElementById(addressType).value = val;
+            }
+        }
+    }
+
+    // Bias the autocomplete object to the user's geographical location,
+    // as supplied by the browser's 'navigator.geolocation' object.
+    function geolocate() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var geolocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                var circle = new google.maps.Circle({
+                    center: geolocation,
+                    radius: position.coords.accuracy
+                });
+                autocomplete.setBounds(circle.getBounds());
+            });
+        }
+    }
+</script>
+
+</body>
+
+{% endblock %}
+

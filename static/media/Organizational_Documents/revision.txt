@@ -1,0 +1,16 @@
+Hello Dear Mr jovinpizarro!
+
+I think you dont need to have a database for this task.
+You should reside your csv files on any cloud(mediafire,cloudinarystorage,github or google drive)
+after residing your csv files on any cloud you can read them in your code.
+These cloud files will act as backend for your code.
+I am also sending you a example and a youtube link for this purpose
+
+urlfile = 'https://res.cloudinary.com/hmmpyq8rf/raw/upload/v1604671300/localisationDigixpress_n8s98k.csv'
+
+df = pd.read_csv(urlfile)
+
+
+or you can watch following youtube link
+
+https://www.youtube.com/watch?v=w4Z7MLwnHbU

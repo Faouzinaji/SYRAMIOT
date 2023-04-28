@@ -1,0 +1,215 @@
+{% extends 'base2.html' %}
+{% load static %}
+{% block title %}
+   My Devices
+{% endblock %}
+{% block content %}
+
+    <body class="skin-blue">
+    <div class="wrapper">
+
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <h1>
+                    My Devices
+                    <small>Manage Devices</small>
+                </h1>
+                <ol class="breadcrumb">
+                    <li><a href="{% url 'dashboard' %}"><i class="fa fa-dashboard"></i> Main Dashboard</a></li>
+
+
+                    <li class="active"> Devices</li>
+                </ol>
+            </section>
+            <h5 style="text-decoration:#00a65a">{% include '_messages.html' %}</h5>
+            <section class="content">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="box">
+                            <div class="box-header">
+                                <small><a href="{% url 'add_device' %}" class="btn btn-md  bg-light-blue text-white">Add Device</a></small>
+                                <small><a href="{% url 'device_export_csv' %}"
+                                          class="btn btn-md  bg-light-blue text-white"><span class="glyphicon glyphicon-download-alt"></span> Export</a></small>
+
+                                <small><a class="btn btn-md bg-warning text-white" id="certificate_btn">Buy Certificate</a></small>
+                            </div><!-- /.box-header -->
+                            <div class="box-body">
+                                <div id="apptable">
+                                    <table id="example2" class="table table-bordered table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>Select</th>
+                                            <th>Designation</th>
+                                            <th>Serial Number</th>
+                                            <th>Password</th>
+                                            <th>Status</th>
+                                            <th>Edit</th>
+                                            <th>Delete</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for item in all_devices %}
+                                            <tr id="{{ item.device_id }}">
+                                                <td data-th="Select">
+                                                    <input type="checkbox" name="sel" value="{{ item.device_id }}">
+                                                </td>
+                                                <td>{{ item.designation }} </td>
+                                                <td>{{ item.serial_no }}</td>
+                                                <td>{{ item.device_password }}</td>
+                                                <td>{{ item.status }}</td>
+                                                <td>
+                                                    <a href="{% url 'edit_device' item.device_id %}" class="btn btn-md  bg-green text-white">Edit</a>
+                                                </td>
+                                                <td>
+                                                <a href="{% url 'delete_device' item.device_id %}" class="btn btn-md  bg-danger text-white">Delete</a>
+                                                <td>  
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+            </section>
+            <!-- Main content -->
+        <section class="content-header">
+                <h1>
+                    Activated Devices
+
+                </h1>
+
+            </section>
+            <section class="content">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="box">
+                            <div class="box-header">
+                                <small><a href="{% url 'device_export_csv' %}"
+                                          class="btn btn-md  bg-light-blue text-white"><span class="glyphicon glyphicon-download-alt"></span> Export</a></small>
+
+                            </div><!-- /.box-header -->
+                            <div class="box-body">
+                                <div id="apptable">
+                                    <table id="example1" class="table table-bordered table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>Sr#</th>
+                                            <th>Designation</th>
+                                            <th>Serial Number</th>
+                                            <th>Password</th>
+                                            <th>license</th>
+                                            <th>SubsciptionFrom</th>
+                                            <th>SubsciptionTo</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for item in all_devices_sub %}
+                                            <tr id="{{ item.serial_no.serial_no}}">
+                                              <td>{{forloop.counter}}</td>
+                                                <td>{{ item.serial_no.designation }}</td>
+                                                <td>{{ item.serial_no.serial_no }}</td>
+                                                <td>{{ item.serial_no.device_password }}</td>
+                                                <td>{{ item.serial_no.status }}</td>
+                                             
+                                                <td>{{ item.subsciption_from }}</td>
+                                                <td>{{ item.subsciption_to }}</td>
+                                                {% if  item.status  == "Expire" %}
+                                                <td class="bg-danger text-danger">{{ item.status }}</td>
+                                                
+                                                {% endif %}
+                                                {% if  item.status  == "Active" %}
+                                                <td class="bg-info text-info">{{ item.status }}</td>
+                                                
+                                                {% endif %}
+
+                                                {% if  item.status  == "Almost Expire" %}
+                                                <td class="bg-warning text-warning">{{ item.status }}</td>
+                                                
+                                                {% endif %}
+
+
+                                            <td> <a href="{% url 'edit_device_after_activate' item.serial_no.device_id %}" class="btn btn-md  bg-green text-white">Edit</a></td>
+
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+            </section>
+        </div><!-- /.content-wrapper -->
+
+    </div><!-- ./wrapper -->
+
+    <!-- jQuery 2.1.3 -->
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#certificate_btn').click(function () {
+                if (confirm("Are you sure you want to buy selected devices certificates?"))
+                    var id = [];
+                var csrf = $('input[name=csrfmiddlewaretoken] ').val();
+                $(':checkbox:checked').map(function (i) {
+                    id[i] = $(this).val();
+                })
+                if (id.length === 0) {
+                    alert("Please select device to buy plan")
+                } else {
+                    console.log(id)
+
+
+                    $.ajax({
+                        url: '/payments/checkout',
+                        method: "POST",
+                        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                        data: {
+                            id
+                        },
+                        success: function (response) {
+                            window.location.href = 'http://' + $(location).attr('host') + '/payments/checkout_page'; //Will take you to Google.
+                            // window.location.href = 'https://syram-iot-final.herokuapp.com/payments/checkout_page'; //Will take you to Google.
+
+                        }
+                    })
+                }
+            })
+        });</script>
+    <script type="text/javascript">
+        $(function () {
+            $("#example1").dataTable();
+            $('#example2').dataTable({
+                "bPaginate": true,
+                "bLengthChange": true,
+                "bFilter": true,
+                "bSort": true,
+                "bInfo": true,
+                "bAutoWidth": true
+
+            });
+        });
+    </script>
+    <script src="{% static 'bootstrap/js/search_student.js' %}"></script>
+
+
+    </body>
+
+{% endblock %}
+

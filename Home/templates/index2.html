@@ -1,0 +1,296 @@
+{% extends 'base2.html' %}
+{% load static %}
+{% block title %}
+    Dashboard
+{% endblock %}
+{% block content %}
+
+  <body class="skin-blue">
+    <div class="wrapper">
+      
+
+
+      <!-- Content Wrapper. Contains page content -->
+      <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+          <h1>
+            Dashboard daily 
+            <button class="btn btn-primary " onclick="window.print();return false;">Print as PDF</button>
+
+          </h1>
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+          <!-- Small boxes (Stat box) -->
+
+          <div class="row">
+            <div class="col-lg-3">
+             
+          <h3 style="font-size: 15px;">Selected Device : {{ selected.designation }}</h3>
+          <h3 style="font-size: 15px;">Selected Date :  {{st}}----{{ed}}</h3>
+         
+              <form action=""method="post">
+                {% csrf_token %}
+                
+              <div class="form-group has-feedback">
+                <select id="device_id" name="device_id"  class="form-control" required>
+                  {% for item in all_devices %}
+                  <option value="{{item.device_id}}">Device : {{ item.designation }}</option>
+                  {% endfor %}
+                </select>
+                </div>
+              <div class="form-group has-feedback">
+                <small>Start-Date:</small>
+                <input class="form-control" type="date"  name="datestrt" placeholder="Enter date" required >
+                <small>End-date:</small>
+                <input class="form-control" type="date"  name="dateend" placeholder="Enter date" required >
+             
+              </div>
+                <button type="submit" class="btn btn-primary ">Search</button>
+                
+              </form>
+              
+            </div>
+       
+            <div class="col-lg-2 col-xs-6">
+              <!-- small box -->
+              <div class="small-box bg-white text-black shadow" style="  border-style: solid;border-color: #ffffff;border-radius:5px;" >
+                <div class="inner text-center">
+                  <h3 style="font-size: 12px;">Units-Produced</h3>
+                  <p style="font-size: 12px;">{{units_produced}}</p>
+                </div>
+              </div>
+            </div><!-- ./col -->
+            <div class="col-lg-2 col-xs-6">
+              <!-- small box -->
+              <div class="small-box bg-white text-black shadow" style="  border-style: solid;border-color: #ffffff;border-radius:5px;"  >
+                <div class="inner text-center">
+                  <h3 style="font-size: 12px;">Availability-Rate</h3>
+                  <p style="font-size: 12px;">{{Availability_rate}}%</p>
+                </div>
+              </div>
+            </div><!-- ./col -->
+            <div class="col-lg-2 col-xs-6">
+              <!-- small box -->
+              <div class="small-box bg-white text-black shadow" style="  border-style: solid;border-color: #ffffff;border-radius:5px;" >
+                <div class="inner text-center">
+                  <h3 style="font-size: 12px;">Performance-Rate</h3>
+                  <p style="font-size: 12px;">{{Performance_rate}}%</p>
+                </div>
+              </div>
+            </div><!-- ./col -->
+            <div class="col-lg-2 col-xs-6">
+              <!-- small box -->
+              <div class="small-box bg-white text-black shadow" style="  border-style: solid;border-color: #ffffff;border-radius:5px;"  >
+                <div class="inner text-center">
+                  <h3 style="font-size: 12px;">Quality-Rate</h3>
+                  <p style="font-size: 12px;">{{Quality_rate}}%</p>
+                </div>
+              </div>
+            </div><!-- ./col -->
+            <div class="col-lg-2 col-xs-6">
+              <!-- small box -->
+              <div class="small-box bg-white text-black shadow" style="  border-style: solid;border-color: #ffffff;border-radius:5px;" >
+                <div class="inner text-center">
+                  <h3 style="font-size: 12px;">Mean</h3>
+                  <p style="font-size: 12px;">{{mean}}</p>
+                </div>
+              </div>
+            </div><!-- ./col -->
+            <div class="col-lg-2 col-xs-6">
+              <!-- small box -->
+              <div class="small-box bg-white text-black shadow" style="  border-style: solid;border-color: #ffffff;border-radius:5px;"  >
+                <div class="inner text-center">
+                  <h3 style="font-size: 12px;">Maximun</h3>
+                  <p style="font-size: 12px;">{{maximun}}</p>
+                </div>
+              </div>
+            </div><!-- ./col -->
+          
+            <div class="col-lg-2 col-xs-6">
+              <!-- small box -->
+              <div class="small-box bg-white text-black shadow" style="  border-style: solid;border-color: #ffffff;border-radius:5px;"  >
+                <div class="inner text-center">
+                  <h3 style="font-size: 12px;">std</h3>
+                  <p style="font-size: 12px;">{{std}}</p>
+                </div>
+              </div>
+            </div><!-- ./col -->
+            <div class="col-lg-2 col-xs-6">
+              <!-- small box -->
+              <div class="small-box bg-white text-black shadow" style="  border-style: solid;border-color: #ffffff;border-radius:5px;"  >
+                <div class="inner text-center">
+                  <h3 style="font-size: 12px;">OEE</h3>
+                  <p style="font-size: 12px;">{{oee}}%</p>
+                </div>
+              </div>
+            </div><!-- ./col -->
+          </div><!-- /.row -->
+      
+      <hr>
+          <!-- Main row -->
+          <div class="row">
+            <!-- Left col -->
+            <section class="col-lg-12 connectedSortable">
+              <canvas id="myChart" style="width:100%;height: 300px;"></canvas><script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+
+            </section><!-- /.Left col -->
+            <section class="col-lg-12 connectedSortable">
+              <canvas id="myChart2" style="width:100%;height: 300px;"></canvas><script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+
+            </section><!-- /.Left col -->
+
+            <section class="col-lg-12 connectedSortable">
+              <canvas id="myChart12" style="width:100%;height: 300px;"></canvas><script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+
+            </section><!-- /.Left col -->
+           
+          
+          </div><!-- /.row (main row) -->
+
+        </section>
+      </div><!-- /.content-wrapper -->
+
+    </div><!-- ./wrapper -->
+
+    <!-- jQuery 2.1.3 -->
+
+  </body>
+
+  <script>
+    var xValues = {{ su_date_label|safe }};
+    
+    
+    new Chart("myChart", {
+      type: "line",
+      data: {
+        labels: xValues,
+        datasets: [{
+          fill: false,
+          lineTension: 0,
+          backgroundColor: "#fc0087",
+          borderColor: "#fc0087",
+          data: {{ su_date_value|safe }},
+          label:"Scrape-Unit"
+        },
+        {
+          fill: false,
+          lineTension: 0,
+          backgroundColor: "#62929E",
+          borderColor: "#62929E",
+          data: {{ su_up|safe }},
+           label:"Unit-Produced"
+        }]
+      },
+      options: {
+        legend: {display: false},
+        title: {
+                        display: true,
+                        text: 'Scrape-Units-Per-Hour'
+                    },
+                 
+                  scales: {
+            xAxes: [{
+                barThickness: 18,  // number (pixels) or 'flex'
+                maxBarThickness:20 // number (pixels)
+            }]
+        }
+     
+      }
+    });
+    </script>
+
+<script>
+  var xValues = {{ oc_label|safe }};
+  var yvalues = {{ oc|safe }}
+  console.log(xValues);
+  console.log({{ oc|safe }});
+  
+  
+  new Chart("myChart12", {
+    type: "bar",
+    data: {
+      labels: xValues,
+      datasets: [{
+        fill: false,
+        lineTension: 0,
+        backgroundColor: "#62929E",
+        borderColor: "#62929E",
+        data:yvalues
+      }]
+    },
+    options: {
+      legend: {display: false},
+      title: {
+                      display: true,
+                      text: 'State Occurance'
+                  },
+                  scales: {
+            xAxes: [{
+                barThickness: 18,  // number (pixels) or 'flex'
+                maxBarThickness:20 // number (pixels)
+            }]
+        }
+   
+    }
+  });
+  </script>
+<script>
+ var xValues = {{ su_date_label|safe }};
+
+new Chart("myChart2", {
+  type: "line",
+  data: {
+    labels: xValues,
+    datasets: [
+      
+      {
+      fill: false,
+      lineTension: 0,
+      backgroundColor: "#5c5959",
+          borderColor: "#5c5959",
+      data: {{ ar_value|safe }},
+      label:"Availability-Rate"
+    
+    }, 
+      {
+      fill: false,
+      lineTension: 0,
+      backgroundColor: "#62929E",
+          borderColor: "#62929E",
+      data: {{ pr_value|safe }},
+      label:"Performance-Rate"
+    },
+    {
+      fill: false,
+      lineTension: 0,
+      backgroundColor: "#fc0087",
+          borderColor: "#fc0087",
+      data: {{ qr_value|safe }},
+      label:"Quality-Rate"
+    }, {
+      fill: false,
+      lineTension: 0,
+      backgroundColor: "#fa0c00",
+          borderColor: "#fa0c00",
+      data: {{ oee_value|safe }},
+      label:"OEE-Rate"
+    }
+  
+  ]
+  },
+   
+  options: {
+    legend: {display: true},
+        title: {
+                        display: true,
+                        text: 'Availability-Performance-Quality-OEE-rate-Per-Hour'
+                    }
+  }
+});
+  </script>
+
+{% endblock %}
+

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Login OTP
+{% endblock %}
+{% block content %}
+
+
+  <body class="login-page" style='background-color: #62929E' >
+    <div class="login-box">
+
+      <!-- /.login-logo -->
+      <div class="login-box-body">
+          <p class="login-box-msg"><a href="#"><img src="{% static 'dist/img/Sans titre.png' %}" width="60%" height="60%"  alt="" /></a></p>
+          <strong>An OTP  sent on your registerd email address.</strong>
+
+          <h5 style="text-decoration:#00a65a">{% include '_messages.html' %}</h5>
+
+        <form action="{% url 'login_otp' %}" method="post">
+            {% csrf_token %}
+        <div class="form-group has-feedback">
+            <input class="form-control" type="number"  id="2facode" name="2facode" min="0"  pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==4) return false;" placeholder="Enter Code" required >
+
+          </div>
+          <div class="row">
+       <!-- /.col -->
+            <div class="col-xs-4">
+              <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
+            </div><!-- /.col -->
+          </div>
+        </form>
+
+
+      </div><!-- /.login-box-body -->
+    </div><!-- /.login-box -->
+
+
+    <script>
+  document.getElementById('2facode')
+    .addEventListener('keyup', function(event) {
+        if (event.code === 'Enter')
+        {
+            event.preventDefault();
+            document.querySelector('form').submit();
+        }
+    });
+      $(function () {
+        $('input').iCheck({
+          checkboxClass: 'icheckbox_square-blue',
+          radioClass: 'iradio_square-blue',
+          increaseArea: '20%' // optional
+        });
+      });
+    </script>
+  </body>
+{% endblock %}

@@ -1,0 +1,344 @@
+
+
+
+{% extends 'base2.html' %}
+{% load static %}
+{% block title %}
+    Dashboard
+{% endblock %}
+{% block content %}
+    <body class="skin-blue">
+    <div class="wrapper">
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <h1>
+                    Dashboard
+                    <small>Control panel</small>
+                </h1>
+                <ol class="breadcrumb">
+                    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+                    <li class="active">Dashboard</li>
+                </ol>
+            </section>
+
+            <!-- Main content -->
+            <section class="content">
+
+                <!-- Main row -->
+                <div class="row">
+                    <!-- Left col -->
+                    <section class="col-lg-7 connectedSortable">
+                        <!-- Custom tabs (Charts with tabs)-->
+                        <div class="nav-tabs-custom">
+                            <!-- Tabs within a box -->
+                            <ul class="nav nav-tabs pull-right">
+                                <li class="active"><a href="#revenue-chart" data-toggle="tab">Area</a></li>
+                                {#                  <li><a href="#sales-chart" data-toggle="tab">Donut</a></li>#}
+                                <li class="pull-left header"><i class="fa fa-inbox"></i> Threats</li>
+                            </ul>
+                            <div class="tab-content no-padding">
+                                <!-- Morris chart - Sales -->
+                                <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+                                {#                  <div class="chart tab-pane" id="sales-chart" style="position: relative; height: 300px;"></div>#}
+                            </div>
+                        </div><!-- /.nav-tabs-custom -->
+
+                        <!-- Chat box -->
+                        <div class="box box-success">
+                            <div class="box-header">
+
+                                <h3 class="box-title">Sent Box</h3>
+
+                            </div>
+                            <div class="box-body chat" id="chat-box">
+                                <!-- chat item -->
+                                {% for item in sent_box_data %}
+
+
+
+                                    <div class="item">
+
+
+                                        <small class="text-muted pull-right"><i
+                                                class="fa fa-clock-o"></i> {{ item.created_at }}</small>
+                                        <b>From:</b>{{ item.sender }}
+                                        <br>
+
+
+                                        <b>To:</b>
+                                        {{ item.receiver }}
+                                        <br>
+
+                                        <b>Subject:</b>{{ item.subject }}
+
+
+                                        <div class="attachment">
+                                            <h4>Body:</h4>
+                                            <p class="filename">
+                                                {{ item.body }}
+                                            </p>
+
+                                        </div>
+                                        <!-- /.attachment -->
+                                    </div><!-- /.item -->
+
+
+                                {% endfor %}
+
+                            </div><!-- /.chat -->
+
+                        </div><!-- /.box (chat box) -->
+
+                        <!-- TO DO List -->
+                        <div class="box box-primary">
+                            <div class="box-header">
+                                <i class="ion ion-clipboard"></i>
+                                <h3 class="box-title">Last Five Uploaded Documents</h3>
+
+                            </div><!-- /.box-header -->
+                            <div class="box-body">
+                                <table id="example2" class="table table-bordered table-striped"
+                                       style="align-content: center">
+                                    <col>
+                                    <colgroup span="2"></colgroup>
+                                    <thead>
+                                    <tr>
+
+                                        <th>Name</th>
+                                        <th>Version</th>
+                                        <th>File Type</th>
+
+
+                                        <th>Owner</th>
+                                        <th>Classification</th>
+
+                                        <th>View Document</th>
+
+
+                                        <th>Action</th>
+
+                                    </tr>
+
+                                    </thead>
+                                    <tbody>
+                                    {% for item in document_data %}
+                                        <tr id="{{ item.document_id }}">
+
+                                            <td>{{ item.name }} </td>
+                                            <td>{{ item.version }}</td>
+                                            <td>{{ item.extension_type }}</td>
+
+
+                                            <td>{{ item.person_id.name }}</td>
+                                            <td>{{ item.classification }}</td>
+
+                                            <td>
+
+
+                                                {% if item.extension == 'pdf' %}
+                                                    <a href="{{ item.assigned_file.url }}">View</a>
+                                                {% elif item.extension == 'txt' %}
+                                                    <a href="{{ item.assigned_file.url }}">View</a>
+                                                {% else %}
+                                                    <a href="{{ item.assigned_file.url }}" download>Download</a>
+                                                {% endif %}
+
+
+                                            </td>
+
+
+                                            <td>
+
+
+                                                <a href="{% url 'edit_document' item.document_id %}"
+                                                   class="btn btn-md  bg-green text-white">Edit</a>
+
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+
+                                </table>
+
+                            </div><!-- /.box-body -->
+
+                        </div><!-- /.box -->
+
+
+
+                            <div class="box box-info">
+                                <div class="box-header">
+                                    <i class="fa fa-envelope"></i>
+                                    <h3 class="box-title">Quick Email</h3>
+                                    <h5 style="text-decoration:#00a65a">{% include '_messages.html' %}</h5>
+                                </div>
+
+
+                                <div class="info-box">
+                                    <form action="{% url 'dashboard' %}" method="get">
+                                        <div class="col-md-6">
+
+                                            <div class="form-group">
+
+                                                <select name="selected_group" id="selected_group"
+                                                        class="form-control" onchange="this.form.submit()">
+                                                    <option value="Select">Select Template</option>
+                                                    {% for data in group_data_list %}
+                                                        <option name="selected_group"
+                                                                value="{{ data.id }}">{{ data.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+
+                                <div class="box-body">
+
+                                    <form action="{% url 'sending_emails2' %}" METHOD="post">
+                                        {% csrf_token %}
+                                        <div class="form-group">
+
+                                            <select name="selected_group" id="selected_group" class="form-control">
+                                                <option value="Select">Select Group Name</option>
+                                                {% for data in group_data_list %}
+                                                    <option name="selected_group"
+                                                            value="{{ data.get_person_emails }}">{{ data.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" name="subject"
+                                                   placeholder="Subject"/>
+                                        </div>
+
+                                        <div>
+                                                <textarea name="message_body" class="textarea" placeholder="Message"
+                                                          style="width: 100%; height: 125px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;">{{ file_contents| linebreaks }} </textarea>
+                                        </div>
+                                        <div class="box-footer clearfix">
+                                            <button type="submit" class="pull-right btn btn-default" id="sendEmail">
+                                                Send <i
+                                                    class="fa fa-arrow-circle-right"></i></button>
+                                        </div>
+                                    </form>
+                                </div>
+
+
+                            </div>
+
+
+
+                    </section><!-- /.Left col -->
+                    <!-- right col (We are only adding the ID to make the widgets sortable)-->
+                    <section class="col-lg-5 connectedSortable">
+
+                        <!-- Map box -->
+                        <div class="box box-solid bg-light-blue-gradient">
+                            <div class="box-header">
+                                <!-- tools box -->
+                                <div class="pull-right box-tools">
+                                    {#                    <button class="btn btn-primary btn-sm daterange pull-right" data-toggle="tooltip" title="Date range"><i class="fa fa-calendar"></i></button>#}
+                                    <button class="btn btn-primary btn-sm pull-right" data-widget='collapse'
+                                            data-toggle="tooltip" title="Collapse" style="margin-right: 5px;"><i
+                                            class="fa fa-minus"></i></button>
+                                </div><!-- /. tools -->
+
+                                <i class="fa fa-map-marker"></i>
+                                <h3 class="box-title">
+                                    Offices
+                                </h3>
+                            </div>
+                            <div class="box-body">
+                                <div id="world-map" style="height: 250px; width: 100%;"></div>
+                            </div><!-- /.box-body-->
+                            {#                <div class="box-footer no-border">#}
+                            {#                  <div class="row">#}
+                            {#                    <div class="col-xs-4 text-center" style="border-right: 1px solid #f4f4f4">#}
+                            {#                      <div id="sparkline-1"></div>#}
+                            {#                      <div class="knob-label">Visitors</div>#}
+                            {#                    </div><!-- ./col -->#}
+                            {#                    <div class="col-xs-4 text-center" style="border-right: 1px solid #f4f4f4">#}
+                            {#                      <div id="sparkline-2"></div>#}
+                            {#                      <div class="knob-label">Online</div>#}
+                            {#                    </div><!-- ./col -->#}
+                            {#                    <div class="col-xs-4 text-center">#}
+                            {#                      <div id="sparkline-3"></div>#}
+                            {#                      <div class="knob-label">Exists</div>#}
+                            {#                    </div><!-- ./col -->#}
+                            {#                  </div><!-- /.row -->#}
+                            {#                </div>#}
+                        </div>
+                        <!-- /.box -->
+
+                        <!-- solid sales graph -->
+{#                                      <div class="box box-solid bg-teal-gradient">#}
+{#                                        <div class="box-header">#}
+{#                                          <i class="fa fa-th"></i>#}
+{#                                          <h3 class="box-title">Threats</h3>#}
+{#                                          <div class="box-tools pull-right">#}
+{#                                            <button class="btn bg-teal btn-sm" data-widget="collapse"><i class="fa fa-minus"></i></button>#}
+{#                                            <button class="btn bg-teal btn-sm" data-widget="remove"><i class="fa fa-times"></i></button>#}
+{#                                          </div>#}
+{#                                        </div>#}
+{#                                        <div class="box-body border-radius-none">#}
+{##}
+{##}
+{#                                        </div><!-- /.box-body -->#}
+{##}
+{#                                      </div>#}
+                        <!-- /.box -->
+
+                        <!-- Calendar -->
+                        <div class="box box-solid bg-green-gradient">
+                            <div class="box-header">
+                                <i class="fa fa-calendar"></i>
+                                <h3 class="box-title">Calendar</h3>
+                                <!-- tools box -->
+                                <div class="pull-right box-tools">
+                                    <!-- button with a dropdown -->
+                                    <div class="btn-group">
+                                        <button class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown"><i
+                                                class="fa fa-bars"></i></button>
+                                        <ul class="dropdown-menu pull-right" role="menu">
+                                            <li><a href="#">Add new event</a></li>
+                                            <li><a href="#">Clear events</a></li>
+                                            <li class="divider"></li>
+                                            <li><a href="#">View calendar</a></li>
+                                        </ul>
+                                    </div>
+                                    <button class="btn btn-success btn-sm" data-widget="collapse"><i
+                                            class="fa fa-minus"></i></button>
+                                    <button class="btn btn-success btn-sm" data-widget="remove"><i
+                                            class="fa fa-times"></i></button>
+                                </div><!-- /. tools -->
+                            </div><!-- /.box-header -->
+                            <div class="box-body no-padding">
+                                <!--The calendar -->
+                                <div id="calendar" style="width: 100%"></div>
+                            </div><!-- /.box-body -->
+
+                        </div><!-- /.box -->
+
+                    </section><!-- right col -->
+                </div><!-- /.row (main row) -->
+
+            </section><!-- /.content -->
+        </div>
+
+    </div><!-- ./wrapper -->
+
+    <!-- jQuery 2.1.3 -->
+
+    </body><!-- /.content-wrapper -->
+
+
+
+
+    <script>
+
+</script>
+{% endblock %}
+

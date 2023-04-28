@@ -1,0 +1,114 @@
+{% extends 'base2.html' %}
+{% load static %}
+{% block title %}
+Checkout
+{% endblock %}
+{% block content %}
+
+<body class="skin-blue">
+    <div class="wrapper">
+        <div class="content-wrapper">
+            <section class="container my-4" style="background-color: white">
+                <h1 class="text-center mb-4 section-heading border-bottom pb-2">Buy Devices Checkout</h1>
+                <div class="shopping_cart">
+                    <form class="form-horizontal" role="form" action="" method="post" id="payment-form">
+                        <div class="panel-group" id="accordion">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">Review
+                                            Your Device Information</a>
+                                    </h4>
+                                </div>
+                                <div id="collapseOne" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <div class="items">
+                                            <div class="col-md-9">
+                                                <table class="table table-striped table-bordered">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td colspan="2">
+                                                                <b>Order Device</b>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <ul>
+                                                                    <li>Number Of Devices</li>
+                                                                    <li>Device Price</li>
+                                                                </ul>
+                                                            </td>
+                                                            <td>
+                                                                <b>{{ no_of_devices }}</b> <br>
+                                                                <b>{{ price }}</b>
+                                                                
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div style="text-align: center;">
+                                                    <h3>Total Amount</h3>
+                                                    <h3><span style="color:green;">${{ total }}</span></h3>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#accordion" href="#personal">Review
+                                            Your Personal Information</a>
+                                    </h4>
+                                </div>
+                                <div id="personal" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <div class="items">
+                                            <div class="col-md-12">
+                                                <table class="table table-striped table-bordered">
+                                                    <tbody>
+                                                        <tr>
+                                                            <th>Name</th>
+                                                            <td>{{ name }}</td>
+                                                            <th>Country</th>
+                                                            <td>{{ country }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>City</th>
+                                                            <td>{{ city }}</td>
+                                                            <th>State</th>
+                                                            <td>{{ state }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Road</th>
+                                                            <td>{{ road }}</td>
+                                                            <th>Zip Code</th>
+                                                            <td>{{ zip_code }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Phone</th>
+                                                            <td>{{ ph_no }}</td>
+                                                            <th>Street</th>
+                                                            <td>{{ street }}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a href="{{ url }}" class="btn btn-success btn-lg" style="width:100%;">Pay
+                                    Now
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </div>
+</body>
+{% endblock %}

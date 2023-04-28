@@ -1,0 +1,113 @@
+{% extends 'base2.html' %}
+{% load static %}
+{% block title %}
+    Settings
+{% endblock %}
+{% block content %}
+
+  <body class="skin-blue">
+    <div class="wrapper">
+
+
+
+      <!-- Content Wrapper. Contains page content -->
+      <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+          <h1>
+            Dashboard
+            <small>Profile</small>
+          </h1>
+          <ol class="breadcrumb">
+            <li><a href="{% url 'dashboard' %}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+            <li class="active">Profile</li>
+          </ol>
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+
+         <div class="row mt-5 align-items-center">
+                    <div class="col-md-3 text-center mb-5">
+                      <div class="avatar avatar-xl">
+                         {% if user_profile.picture %}
+                              <img src="{{ user_profile.picture.url }}" height="100px" width="100px"  alt="img" class="img-circle">
+                          {% else %}
+                              <img width="45%" height="20%" src="{% static 'dist/img/avatar5.png' %}" alt="img"
+                                   class="img-circle">
+                          {% endif %}
+                      </div>
+
+                    </div>
+
+                    <div class="col">
+                      <div class="row align-items-center">
+                        <div class="col-md-7">
+                            <h5 class="mb-1"><b>First Name</b>:{{ user.first_name }} </h5>
+                            <h5 class="mb-1"><b>Last Name</b>:{{ user.last_name }} </h5>
+                            <h5 class="mb-1"><b>Phone No</b>:{{ user_profile.phone }} </h5>
+                            <h5 class="mb-1"><b>Email</b>:{{ users.username }} </h5>
+
+
+
+                        </div>
+                      </div>
+                        <div class="col-md-4">
+                        <h5 style="text-decoration:#00a65a">{% include '_messages.html' %}</h5>
+                            </div>
+                      </div>
+                    </div>
+        <form method="post" action="{% url 'Settings' %}" enctype="multipart/form-data">
+
+                      {% csrf_token %}
+                        <input type="file" name="upload" accept=".png, .jpg, .jpeg" >
+
+                  <hr class="my-4">
+
+
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="firstname">Firstname</label>
+
+                      <input type="text" id="firstname" name="firstname" class="form-control" placeholder="First Name">
+                    </div>
+                    <div class="form-group">
+                      <label for="lastname">Lastname</label>
+                      <input type="text" id="lastname" name="lastname" class="form-control" placeholder="Last Name">
+                    </div>
+                         <div class="form-group">
+                    <label for="inputEmail4">Email</label>
+                    <input type="email" class="form-control" id="inputEmail4" name="Email" placeholder="Email" readonly value="{{ users.username }}">
+                  </div>
+                      <button type="submit" class="btn btn-primary">Save Change</button>
+                  </div>
+
+
+{#             <div class="form-group col-md-6">#}
+{#                    <label for="inputEmail4">Phone No</label>#}
+{#                    <input type="number" class="form-control" name="phone" min="0"  pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==10) return false;" placeholder="Enter Phone Number">#}
+{#                  </div>#}
+
+
+
+
+
+
+
+
+
+                </form>
+
+
+
+        </section>
+      </div><!-- /.content-wrapper -->
+
+    </div><!-- ./wrapper -->
+
+
+
+  </body>
+
+{% endblock %}
+

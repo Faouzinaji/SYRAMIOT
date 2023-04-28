@@ -1,0 +1,1 @@
+web: gunicorn SRAM.wsgi --log-file -

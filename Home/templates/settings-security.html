@@ -1,0 +1,179 @@
+{% extends 'base2.html' %}
+{% load static %}
+{% block title %}
+    Settings
+{% endblock %}
+{% block content %}
+
+  <body class="skin-blue">
+    <div class="wrapper">
+
+
+
+      <!-- Content Wrapper. Contains page content -->
+      <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+          <h1>
+            Dashboard
+            <small>Profile</small>
+          </h1>
+          <ol class="breadcrumb">
+            <li><a href="{% url 'dashboard' %}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+            <li class="active">Profile</li>
+          </ol>
+        </section>
+
+        <!-- Main content -->
+<main role="main" class="main-content">
+        <div class="container-fluid">
+          <div class="row justify-content-center">
+            <div class="col-12 col-lg-10 col-xl-8">
+              <h2 class="h3 mb-4 page-title">Settings</h2>
+              <div class="my-4">
+                <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                  <li class="nav-item">
+                    <a class="nav-link " href="{% url 'Settings' %}" >Profile</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'setting_security' %}">Security</a>
+                  </li>
+
+                </ul>
+                <h5 class="mb-0 mt-5">Security Settings</h5>
+                <p>These settings are helps you keep your account secure.</p>
+
+<h5 style="text-decoration:#00a65a">{% include '_messages.html' %}</h5>
+
+                <form action="{% url 'setting_security' %}" method="post">
+                    {% csrf_token %}
+                  <div class="row mb-4">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="current_password">Current Password</label>
+                        <input type="password" class="form-control" id="cpassword" name="current_password" placeholder="Enter your current password" required onkeyup='check();' pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                           >
+                      </div>
+                      <div class="form-group">
+                        <label for="inputPassword5">New Password</label>
+                        <input type="password" class="form-control" id="fpassword" name="new_password" required onkeyup='check();' pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                           title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters">
+                      </div>
+                      <div class="form-group">
+                        <label for="inputPassword6">Confirm Password</label>
+                        <input type="password" class="form-control" id="spassword" required onkeyup='check();' pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                           title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters">
+                      </div>
+{#                                  <div class="form-group">#}
+{#                    <label for="inputEmail4">Phone No</label>#}
+{#                    <input type="number" class="form-control" name="phone" min="0"  pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==10) return false;" placeholder="Enter Phone Number">#}
+{#                  </div>#}
+
+                    </div>
+                    <div class="col-md-6">
+                      <p class="mb-2">Password requirements</p>
+                      <p class="small text-muted mb-2"> To create a new password, you have to meet all of the following requirements: </p>
+                      <ul class="small text-muted pl-4 mb-0">
+                        <li> Minimum 8 character </li>
+                        <li>At least one special character</li>
+                        <li>At least one Capital Alphabet character</li>
+                        <li>At least one number</li>
+
+                      </ul>
+
+                    </div>
+                      <span id='message'></span>
+                      <span id='message2'></span>
+                  </div>
+
+
+                  <button type="submit" class="btn btn-primary">Save Change</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+      </main>
+      </div><!-- /.content-wrapper -->
+
+    </div><!-- ./wrapper -->
+
+
+
+  </body>
+<script>
+    var check = function () {
+        if (document.getElementById('fpassword').value ==
+            document.getElementById('spassword').value) {
+            document.getElementById('message2').style.color = 'green';
+            document.getElementById('message2').innerHTML = 'Passwords match';
+        } else {
+            document.getElementById('message2').style.color = 'red';
+            document.getElementById('message2').innerHTML = 'Passwords do not match';
+        }
+    }
+</script>
+<script>
+    var myInput = document.getElementById("fpassword");
+    var letter = document.getElementById("letter");
+    var capital = document.getElementById("capital");
+    var number = document.getElementById("number");
+    var length = document.getElementById("length");
+
+    // When the user clicks on the password field, show the message box
+    myInput.onfocus = function () {
+        document.getElementById("message").style.display = "block";
+    }
+
+    // When the user clicks outside of the password field, hide the message box
+    myInput.onblur = function () {
+        document.getElementById("message").style.display = "none";
+    }
+
+    // When the user starts to type something inside the password field
+    myInput.onkeyup = function () {
+        // Validate lowercase letters
+        var lowerCaseLetters = /[a-z]/g;
+        if (myInput.value.match(lowerCaseLetters)) {
+            letter.classList.remove("invalid");
+            letter.classList.add("valid");
+        } else {
+            letter.classList.remove("valid");
+            letter.classList.add("invalid");
+        }
+
+        // Validate capital letters
+        var upperCaseLetters = /[A-Z]/g;
+        if (myInput.value.match(upperCaseLetters)) {
+            capital.classList.remove("invalid");
+            capital.classList.add("valid");
+        } else {
+            capital.classList.remove("valid");
+            capital.classList.add("invalid");
+        }
+
+        // Validate numbers
+        var numbers = /[0-9]/g;
+        if (myInput.value.match(numbers)) {
+            number.classList.remove("invalid");
+            number.classList.add("valid");
+        } else {
+            number.classList.remove("valid");
+            number.classList.add("invalid");
+        }
+
+        // Validate length
+        if (myInput.value.length >= 8) {
+            length.classList.remove("invalid");
+            length.classList.add("valid");
+        } else {
+            length.classList.remove("valid");
+            length.classList.add("invalid");
+        }
+    }
+</script>
+{% endblock %}
+

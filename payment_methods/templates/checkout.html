@@ -1,0 +1,70 @@
+{% extends 'base2.html' %}
+{% load static %}
+{% block title %}
+    Checkout 
+{% endblock %}
+{% block content %}
+
+    <body class="skin-blue">
+    <div class="wrapper">
+        <div class="content-wrapper">
+
+            <section class="container my-4" style="background-color: white">
+			<h1 class="text-center mb-4 section-heading border-bottom pb-2">Buy Devices Checkout</h1>
+				<table class="table table-bordered">
+					<thead class="table-warning">
+						<tr>
+							<th>Pricing Plan</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								<table class="table table-bordered table-striped">
+									<tr>
+										<th>Device ID</th>
+										<th>Serial Numbers</th>
+										<th>Status</th>
+										<th>Price</th>
+									</tr>
+                                    {% for obj in device %}
+									<tr>
+										<td>{{ obj.device_id }}</td>
+										<td>{{ obj.serial_no }}</td>
+										<td>{{ obj.status }}</td>
+										<td id="{{ obj.pk }}">${{ price.price }}</td>
+									</tr>
+									{% endfor %}
+								</table>
+							</td>
+						</tr>
+              
+					</tbody>
+				
+				</table>
+				
+				<div class="row"  style="margin-left: 5px;">
+					<div class="col-md-6">
+						<span style=" font-size: 20px;">Total Amount : </span>
+						<span  style=" font-size: 20px;"> $ {{no_of_items}}</span>
+					</div>
+					
+					</div>
+					<br>
+				<form method="post" action="{% url 'checkout_session' no_of_items %}" style="margin-left: 20px;">
+					{% csrf_token %}
+					<input type="submit" value="Pay with stripe" class="btn btn-primary mt-2"/>
+				</form>
+		</section>
+
+
+        </div>
+    </div>
+
+
+    </body>
+
+{% endblock %}
+
+
+

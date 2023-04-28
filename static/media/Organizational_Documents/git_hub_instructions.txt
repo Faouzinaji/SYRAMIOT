@@ -1,0 +1,7 @@
+Create envirnment:
+python -m venv envmunciplity
+Activate:
+envmunciplity\Scripts\activate
+install requirments
+pip install -r requirments.txt
+

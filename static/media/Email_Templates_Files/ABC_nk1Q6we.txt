@@ -1,0 +1,29 @@
+
+aAAaa
+git remote set-url git@github.com:drpalmer/hcmweb.git
+
+
+git remote add gandi https://github.com/drpalmer/hcmweb.git
+
+
+https 5073477@git.sd6.gpaas.net deploy default.git
+
+
+aaAAA
+========
+git@github.com:drpalmer/hcmweb.git
+=============
+git remote add gandi git+ssh://5073477@git.sd6.gpaas.net/default.git
+==============
+git push gandi master
+=========
+ssh 5073477@git.sd6.gpaas.net deploy default.git
+
+
+ssh 5073477@git.sd6.gpaas.net deploy git@github.com:drpalmer/hcmweb.git
+
+<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d163.95674408985306!2d-73.97129063984934!3d40.79411639611666!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c2f6280aafd767%3A0x1b77f837f8ed130c!2s210%20W%2096th%20St%20%236%2C%20New%20York%2C%20NY%2010025%2C%20USA!5e1!3m2!1sen!2s!4v1638302402208!5m2!1sen!2s" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+
+
+
+
