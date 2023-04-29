@@ -150,26 +150,16 @@ def Sign_Up(request):
             timezone_user = datetime.now(pytz.timezone(user_tz))
         except:
             timezone_user = "Not Found"
-
         # perfect_country_code=country_code.split('()')
         # print(perfect_country_code)
         char1 = '('
         char2 = ')'
         mystr = country_code
-
         perfect_country_code=mystr[mystr.find(char1) + 1: mystr.find(char2)]
         Phone_no_input = request.POST.get('phone')
-
-
         print('phone no final rep is=',perfect_country_code+Phone_no_input)
         Phone_no = perfect_country_code+Phone_no_input
-
-
-
         Password = request.POST.get('password')
-
-
-
         username = Email
         if not f_name:
             messages.error(request, 'First Name is required')
@@ -186,14 +176,9 @@ def Sign_Up(request):
         if not Password:
             messages.error(request, 'Password is required')
             return redirect('Sign_up')
-
         try:
             if not User.objects.filter(username=username).exists():
-
                 if not Profile.objects.filter(phone=Phone_no):
-
-
-
                     x = User.objects.create_user(
                         first_name=f_name, last_name=l_name, email=Email,
                         username=username,password=Password
@@ -221,16 +206,10 @@ def Sign_Up(request):
         return render(request, 'Sign_Up.html')
 
 
-
-
-
-
 def Logout(request):
     logout(request)
     messages.info(request,'You have been Logged Out')
     return redirect('Login')
-
-
 
 
 def forget_password(request):
@@ -256,30 +235,23 @@ def forget_password(request):
         user_email = []
         user_email.append(x.owner.email)
         send_email_otp(user, user_email, otp)
-
         request.session['mobile'] = mobile
         request.session['Username'] = Username
-
         return redirect('reset_password')
-
     return render(request,'forget-password.html')
 
 
 def reset_password(request):
     mobile = request.session['mobile']
     Username = request.session['Username']
-
-
     if request.method == 'POST':
         otp = request.POST.get('2facode')
         profile = Profile.objects.filter(phone=mobile).first()
-
         if otp == profile.otp:
 
              request.session['Username'] = Username
              messages.success(request, 'Verification code match successfully')
              return redirect('update_password')
-
         else:
             messages.error(request,'Invalid OTP,please try again')
             return render(request, 'reset_password_otp.html')
@@ -289,25 +261,13 @@ def reset_password(request):
 
 def update_password(request):
     Username = request.session['Username']
-
-
     if request.method == 'POST':
         users = User.objects.get(username=Username)
-
         new_password = request.POST.get('new_password')
-
-
-
         if len(new_password)!=0:
             users.set_password(new_password)
             users.save()
-
             messages.info(request, 'Password updated successfully,Please Login with New Set Password')
             return redirect('Login')
-
     else:
-
-     return render(request,'update_password.html')
-
-
-
+        return render(request,'update_password.html')

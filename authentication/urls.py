@@ -7,7 +7,7 @@ from . import views
 
 urlpatterns=[
 
-path('Sign_Up', views.Sign_Up, name='Sign_up'),
+path('sign-up/', views.Sign_Up, name='Sign_up'),
 path('', views.Login, name='Login'),
 path('Logout',views.Logout,name='Logout'),
 path('login-otp', views.login_otp , name="login_otp"),
