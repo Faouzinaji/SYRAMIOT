@@ -1,0 +1,45 @@
+{% extends 'base2.html' %}
+{% load static %}
+{% block title %}
+    Dashboard
+{% endblock %}
+{% block content %}
+<body class="skin-blue">
+    <div class="wrapper">
+        <div class="content-wrapper">
+            <section class="content-header">
+                <div class="row">
+                    <div class="col-md-12">
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="from_country_code">From Country Code</label>
+                                    <input type="text" name="from_country_code" id="from_country_code" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="from_postal_code">From Postal Code</label>
+                                    <input type="text" name="from_postal_code" id="from_postal_code" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="to_country_code">To Country Code</label>
+                                    <input type="text" name="to_country_code" id="to_country_code" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="to_postal_code">To Postal Code</label>
+                                    <input type="text" name="to_postal_code" id="to_postal_code" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="weight">Weight</label>
+                                    <input type="text" name="weight" id="weight" class="form-control">
+                                </div>
+                                <button type="submit" class="btn">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</body>
+{% endblock %}

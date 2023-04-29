@@ -1,7 +1,8 @@
 from django.urls import path
 from . import views
 from Home.API import (
-    APIDeviceDataCreate, LoginAuthToken, APIDeviceDataUpdate, get_request
+    APIDeviceDataCreate, LoginAuthToken, APIDeviceDataUpdate,
+    get_dhl_rates_view, get_rates
 )
 
 
@@ -53,5 +54,6 @@ urlpatterns = [
         name="Device_Details"
     ),
     # API Test ================================================================
-    path("api/", get_request, name="Device_Details"),
+    path("api/", get_dhl_rates_view, name="Device_Details"),
+    path("api/easy/", get_rates, name="get_rates"),
 ]
