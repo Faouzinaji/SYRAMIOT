@@ -5,6 +5,8 @@ from dateutil.relativedelta import relativedelta
 import datetime
 from .models import *
 
+from Home.API import get_easypost_rates
+
 
 def checkout(request):
     if request.method == 'POST':
@@ -72,20 +74,38 @@ def checkout_session_for_buy_devices(request):
     country = request.session["country"]
     ph_no = request.session["ph_no"]
     name = request.session["name"]
+    rate = get_easypost_rates(name, street, city, state, zip_code, country, ph_no)
+    rate = rate[0]
     item = Price_plan.objects.all().last()
+    # item_pricex = float(item.price)
+    # item_price = item_pricex + float(rate)
+    # item_price_int = int(item_price)
     stripe.api_key = settings.STRIPE_SECRET_KEY
     session = stripe.checkout.Session.create(
             payment_method_types=['card'],
-            line_items=[{
-                'price_data': {
-                    'currency': 'usd',
-                    'product_data': {
-                        'name': 'SYRAM Web System',
-                    },
-                    'unit_amount': item.price * 100,
-                },
+            line_items=[
+            #     {
+            #     'price_data': {
+            #         'currency': 'usd',
+            #         'product_data': {
+            #             'name': 'SYRAM Web System',
+            #         },
+            #         'unit_amount': item_price,
+            #     },
+            #     'quantity': no_of_devices,
+            # },
+            {
+                'name': 'SYRAM Web System',
+                'description': f'Product quantity {no_of_devices} and amount {item.price}',
+                'amount': item.price * 100,
+                'currency': 'usd',
                 'quantity': no_of_devices,
-            }],
+            },
+            ],
+            # shipping_rates=[752, 96, 15, 71, 57],
+            shipping_address_collection={
+                'allowed_countries': ['US']
+            },
             mode='payment',
 
             success_url=f'{request.build_absolute_uri("/")}'+'payments/order_payment_success?session_id={CHECKOUT_SESSION_ID}',
@@ -93,9 +113,11 @@ def checkout_session_for_buy_devices(request):
 
             client_reference_id=no_of_devices,
         )
+
     context = {
         'price': item.price,
-        'total': item.price * no_of_devices,
+        'total': float(item.price * no_of_devices) + float(rate),
+        'sub_total': float(item.price * no_of_devices),
         'url': session.url,
         'no_of_devices': no_of_devices,
         'delivery_destination': delivery_destination,
@@ -106,7 +128,8 @@ def checkout_session_for_buy_devices(request):
         'zip_code': zip_code,
         'country': country,
         'ph_no': ph_no,
-        'name': name
+        'name': name,
+        'rate': rate
     }
     return render(request, 'overview.html', context)
     # return redirect(session.url, code=200)
