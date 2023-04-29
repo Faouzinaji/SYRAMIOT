@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 from pathlib import Path
 import dj_database_url
+from .local_settings import database, django_secret, allowed_host
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 from django.contrib import messages
@@ -23,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-6wfl&6h_&mvefms54j0vb2um%k*h=&4g__b%o37c^lgt4t-itj'
+SECRET_KEY = django_secret
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = allowed_host
 
 
 # Application definition
@@ -97,15 +98,7 @@ REST_FRAMEWORK = {
 }
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME':'syral' ,
-        'USER': 'postgres',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',
-    }
-}
+DATABASES = database
 db_from_env = dj_database_url.config()
 DATABASES['default'].update(db_from_env)
 
