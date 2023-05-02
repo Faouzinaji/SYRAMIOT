@@ -916,52 +916,25 @@ def dashboard(request):
         oc_label.append("OFF")
         oc_label.append("Convoyeur")
         oc_label.append("Meeting")
-
+        iot_device = API_Device_data.objects.all()
         # Chart Data
-        speed_data = [
-            { "x": 0, "y": 0 },
-            { "x": 11, "y": 8.2 },
-            { "x": 47, "y": 41.7 },
-            { "x": 56, "y": 16.7 },
-            { "x": 120, "y": 31.3 },
-            { "x": 131, "y": 18.2 },
-            { "x": 171, "y": 31.3 },
-            { "x": 189, "y": 61.1 },
-            { "x": 221, "y": 40.6 },
-            { "x": 232, "y": 18.2 },
-            { "x": 249, "y": 35.3 },
-            { "x": 253, "y": 12.5 },
-            { "x": 264, "y": 16.4 },
-            { "x": 280, "y": 37.5 },
-            { "x": 303, "y": 24.3 },
-            { "x": 346, "y": 23.3 },
-            { "x": 376, "y": 11.3 },
-            { "x": 388, "y": 8.3 },
-            { "x": 430, "y": 1.9 },
-            { "x": 451, "y": 4.8 }
-        ]
-        distance_covered_data = [
-            { "x": 0, "y": 0 },
-            { "x": 11, "y": 90 },
-            { "x": 47, "y": 1590 },
-            { "x": 56, "y": 1740 },
-            { "x": 120, "y": 3740 },
-            { "x": 131, "y": 3940 },
-            { "x": 171, "y": 5190 },
-            { "x": 189, "y": 6290 },
-            { "x": 221, "y": 7590 },
-            { "x": 232, "y": 7790 },
-            { "x": 249, "y": 8390 },
-            { "x": 253, "y": 8440 },
-            { "x": 264, "y": 8620 },
-            { "x": 280, "y": 9220 },
-            { "x": 303, "y": 9780 },
-            { "x": 346, "y": 10780 },
-            { "x": 376, "y": 11120 },
-            { "x": 388, "y": 11220 },
-            { "x": 430, "y": 11300 },
-            { "x": 451, "y": 11400 }
-        ]
+        speed_data = []
+        distance_covered_data = []
+        num = 0
+        for obj in iot_device:
+            if obj.count_input:
+                speed_data.append({ "x": num, "y": int(obj.count_input) })
+                num += 1
+        _num = 0
+        for obj in iot_device:
+            if obj.count_input and obj.count_output:
+                data =  int(obj.count_output) - int(obj.count_input)
+                if data < 0:
+                     data = 0
+                distance_covered_data.append(
+                    { "x": _num, "y": data }
+                )
+                _num += 1
 
         # user data
         state_1 = [
@@ -1132,7 +1105,8 @@ def dashboard(request):
             "selected": my_device, "pr_value": pr_value, "ar_value": ar_value,
             "qr_value": qr_value, "oee_value": oee_value, "st": date, "ed": "",
             "su_up": su_up, "state_1": state_1, "state_2": state_2, "off": off,
-            "state_3": state_3, "production": production, "unknown": unknown
+            "state_3": state_3, "production": production, "unknown": unknown,
+            "iot_device": iot_device
         }
         return render(request, "index.html", context)
     return render(request, "index.html")

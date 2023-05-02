@@ -43,15 +43,15 @@ def send_email_otp(x,user_email,otp):
 def Login(request):
     ''' This is the login method '''
     if request.method == 'POST':
-        Username = request.POST.get('username')
+        email = request.POST.get('email')
         Password = request.POST.get('password')
-        if not Username:
+        if not email:
             messages.error(request, 'Email is required')
             return redirect('Login')
         if not Password:
             messages.error(request, 'Password is required')
             return redirect('Login')
-        x=User.objects.filter(username=Username).first()
+        x=User.objects.filter(email=email).first()
         print(x)
 
         user = Profile.objects.filter(owner=x).first()
@@ -60,7 +60,9 @@ def Login(request):
             messages.error(request,'No User found with this Email')
             return render(request, 'Login.html')
         else:
-            user = auth.authenticate(username=Username, password=Password)
+            print(email, Password, "*" * 100)
+            user = auth.authenticate(email=email, password=Password)
+            print(user, "*" * 10)
             if user is not None:
                 if user.is_active:
                     login(request, user)

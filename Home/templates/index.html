@@ -126,6 +126,44 @@
               </div>
             </div><!-- ./col -->
           </div><!-- /.row -->
+          <hr>
+          
+          <table class="table table-borderd well well-lg">
+            <thead>
+              <tr>
+                <th>SL</th>
+                <th>Device Password</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Hours</th>
+                <th>Count Input</th>
+                <th>Count Output</th>
+                <th>State</th>
+                <th>Cadence</th>
+                <th>Stop</th>
+                <th>MTBF</th>
+                <th>MTTR</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for obj in iot_device %}
+              <tr>
+                <td>{% if obj.serial_no %}{{ obj.serial_no }}{% else %}-{% endif %}</td>
+                <td>{% if obj.device_password %}{{ obj.device_password }}{% else %}-{% endif %}</td>
+                <td>{% if obj.date %}{{ obj.date }}{% else %}-{% endif %}</td>
+                <td>{% if obj.time %}{{ obj.time }}{% else %}-{% endif %}</td>
+                <td>{% if obj.hours %}{{ obj.hours }}{% else %}-{% endif %}</td>
+                <td>{% if obj.count_input %}{{ obj.count_input }}{% else %}-{% endif %}</td>
+                <td>{% if obj.count_output %}{{ obj.count_output }}{% else %}-{% endif %}</td>
+                <td>{% if obj.state %}{{ obj.state }}{% else %}-{% endif %}</td>
+                <td>{% if obj.cadence %}{{ obj.cadence }}{% else %}-{% endif %}</td>
+                <td>{% if obj.stop %}{{ obj.stop }}{% else %}-{% endif %}</td>
+                <td>{% if obj.mtbf %}{{ obj.mtbf }}{% else %}-{% endif %}</td>
+                <td>{% if obj.mttr %}{{ obj.mttr }}{% else %}-{% endif %}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
       
       <hr>
           <!-- Main row -->
@@ -170,6 +208,7 @@
   <script src="{% static 'dist/js/canvasjs.min.js' %}"></script>
 
   <script>
+    
     window.onload = function () {
       var chart = new CanvasJS.Chart("chartContainer", {
         animationEnabled: true,
@@ -190,6 +229,13 @@
           lineThickness: 1,
           lineColor: "#6D78AD",
           tickColor: "#6D78AD"
+        },
+        
+        legend: {
+          cursor:"pointer",
+          verticalAlign: "top",
+          fontSize: 12,
+          fontColor: "dimGrey",
         },
         data: [{
           type: "spline",
