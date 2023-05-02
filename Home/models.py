@@ -46,3 +46,30 @@ class API_Device_data(models.Model):
 
     class Meta:
         verbose_name = 'My IOT Device Date'
+
+
+class APIKey(models.Model):
+    api_name = models.CharField(max_length=255)
+    api_code = models.CharField(max_length=255, unique=True)
+    api_secret = models.TextField(null=True, blank=True)
+    api_key = models.TextField(null=True, blank=True)
+    api_auth = models.TextField(null=True, blank=True)
+    account_sid = models.TextField(null=True, blank=True)
+    publish_key = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.api_name
+
+
+class FromAddress(models.Model):
+    name = models.CharField(max_length=255)
+    street1 = models.TextField(null=True, blank=True)
+    city = models.CharField(max_length=255)
+    state = models.CharField(max_length=255)
+    zip = models.CharField(max_length=255)
+    country = models.CharField(max_length=255)
+    phone = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name

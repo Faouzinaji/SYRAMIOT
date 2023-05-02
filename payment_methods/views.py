@@ -4,6 +4,7 @@ from SRAM import settings
 from dateutil.relativedelta import relativedelta
 import datetime
 from .models import *
+from Home.models import APIKey
 
 from Home.API import get_easypost_rates
 
@@ -39,9 +40,10 @@ def checkout_page(request):
 
 
 def checkout_session(request, billing_id):
-    stripe.api_key = settings.STRIPE_SECRET_KEY
+    stripe_api = APIKey.objects.get(api_code='stripe')
+    stripe.api_key = stripe_api.api_secret
     session = stripe.checkout.Session.create(
-
+    shipping_address_collection={"allowed_countries": ["US", "CA"]},
         payment_method_types=['card'],
         line_items=[{
             'price_data': {
@@ -80,20 +82,51 @@ def checkout_session_for_buy_devices(request):
     # item_pricex = float(item.price)
     # item_price = item_pricex + float(rate)
     # item_price_int = int(item_price)
-    stripe.api_key = settings.STRIPE_SECRET_KEY
+    stripe_api = APIKey.objects.get(api_code='stripe')
+    stripe.api_key = stripe_api.api_secret
+    _rate = float(rate) * 100
+    _rate = int(_rate)
+    # customer = stripe.Customer.create(
+    #     email="jane.doe@example.com",
+    #     shipping={
+    #         "name": "Jane Doe",
+    #         "address": {
+    #             "line1": "123 Main St",
+    #             "line2": "",
+    #             "city": "Anytown",
+    #             "state": "CA",
+    #             "country": "US",
+    #             "postal_code": "12345"
+    #         }
+    #     }
+    # )
+
+    # print(customer)
     session = stripe.checkout.Session.create(
+        # shipping_address_collection={"allowed_countries": ["US", "CA", "BD"]},
+        # shipping_address_collection={
+        #     'allowed_countries': ['US', 'CA'],
+        #     # 'options': {
+        #     #     'default_country': 'US',
+        #     #     'label': 'Shipping'
+        #     # }
+        # },
+        # billing_address_collection='auto',
+        shipping_options=[
+            {
+                "shipping_rate_data": {
+                    "type": "fixed_amount",
+                    "fixed_amount": {"amount": _rate, "currency": "usd"},
+                    "display_name": "Next day air",
+                    "delivery_estimate": {
+                    "minimum": {"unit": "business_day", "value": 1},
+                    "maximum": {"unit": "business_day", "value": 1},
+                    },
+                }
+            },
+        ],
             payment_method_types=['card'],
             line_items=[
-            #     {
-            #     'price_data': {
-            #         'currency': 'usd',
-            #         'product_data': {
-            #             'name': 'SYRAM Web System',
-            #         },
-            #         'unit_amount': item_price,
-            #     },
-            #     'quantity': no_of_devices,
-            # },
             {
                 'name': 'SYRAM Web System',
                 'description': f'Product quantity {no_of_devices} and amount {item.price}',
@@ -102,10 +135,6 @@ def checkout_session_for_buy_devices(request):
                 'quantity': no_of_devices,
             },
             ],
-            # shipping_rates=[752, 96, 15, 71, 57],
-            shipping_address_collection={
-                'allowed_countries': ['US']
-            },
             mode='payment',
 
             success_url=f'{request.build_absolute_uri("/")}'+'payments/order_payment_success?session_id={CHECKOUT_SESSION_ID}',
@@ -118,8 +147,7 @@ def checkout_session_for_buy_devices(request):
         'price': item.price,
         'total': float(item.price * no_of_devices) + float(rate),
         'sub_total': float(item.price * no_of_devices),
-        'url': session.url,
-        'no_of_devices': no_of_devices,
+        'url': session.url, 'no_of_devices': no_of_devices,
         'delivery_destination': delivery_destination,
         'street': street,
         'road': road,

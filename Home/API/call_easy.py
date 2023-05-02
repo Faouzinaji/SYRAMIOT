@@ -1,16 +1,20 @@
 import easypost
 from django.http import JsonResponse
+from Home.models import APIKey, FromAddress
 
 def get_easypost_rates(name, street, city, state, zip_code, country, phone):
-    easypost.api_key = 'EZTKb8008cfa378e4000994fe79f1db345b4agufqsD0IDXy4wjFWVF61w'
+    api = APIKey.objects.get(api_code='cost')
+    from_address = FromAddress.objects.get(is_active=True)
+    print(from_address.name, from_address.street1, from_address.city)
+    easypost.api_key = api.api_key
     from_address = easypost.Address.create(
-        name='John Doe',
-        street1='123 Main St',
-        city='New York',
-        state='NY',
-        zip='10001',
-        country='US',
-        phone='555-555-5555'
+        name=from_address.name,
+        street1=from_address.street1,
+        city=from_address.city,
+        state=from_address.state,
+        zip=from_address.zip,
+        country=from_address.country,
+        phone=from_address.phone
     )
     to_address = easypost.Address.create(
         name=name,

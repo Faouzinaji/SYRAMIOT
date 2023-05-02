@@ -7,3 +7,13 @@ class DevicesAdmin(admin.ModelAdmin):
     list_display = ('device_id','serial_no','designation','owner')
 admin.site.register(Devices,DevicesAdmin)
 admin.site.register(API_Device_data)
+
+
+@admin.register(APIKey)
+class APIKeyAdmin(admin.ModelAdmin):
+    list_display = ('api_name', 'api_secret')
+
+
+@admin.register(FromAddress)
+class FromAddressAdmin(admin.ModelAdmin):
+    list_display = ('name', 'street1', 'is_active')

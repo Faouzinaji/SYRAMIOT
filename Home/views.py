@@ -677,7 +677,7 @@ def dashboard_date(request):
 
 # this is a daily dashboard
 def dashboard(request):
-    users = Profile.objects.get(owner=request.user)
+    # users = Profile.objects.get(owner=request.user)
     sum_of_count_o = 0.0
     total_count_o = 0.0
     max_count_o = 0.0
@@ -700,7 +700,6 @@ def dashboard(request):
     else:
         my_device = Devices.objects.filter(owner=request.user).first()
         date = datetime.date.today()
-        print(date)
     devices_details = None
     if my_device:
         devices_details = API_Device_data.objects.filter(
@@ -918,29 +917,222 @@ def dashboard(request):
         oc_label.append("Convoyeur")
         oc_label.append("Meeting")
 
+        # Chart Data
+        speed_data = [
+            { "x": 0, "y": 0 },
+            { "x": 11, "y": 8.2 },
+            { "x": 47, "y": 41.7 },
+            { "x": 56, "y": 16.7 },
+            { "x": 120, "y": 31.3 },
+            { "x": 131, "y": 18.2 },
+            { "x": 171, "y": 31.3 },
+            { "x": 189, "y": 61.1 },
+            { "x": 221, "y": 40.6 },
+            { "x": 232, "y": 18.2 },
+            { "x": 249, "y": 35.3 },
+            { "x": 253, "y": 12.5 },
+            { "x": 264, "y": 16.4 },
+            { "x": 280, "y": 37.5 },
+            { "x": 303, "y": 24.3 },
+            { "x": 346, "y": 23.3 },
+            { "x": 376, "y": 11.3 },
+            { "x": 388, "y": 8.3 },
+            { "x": 430, "y": 1.9 },
+            { "x": 451, "y": 4.8 }
+        ]
+        distance_covered_data = [
+            { "x": 0, "y": 0 },
+            { "x": 11, "y": 90 },
+            { "x": 47, "y": 1590 },
+            { "x": 56, "y": 1740 },
+            { "x": 120, "y": 3740 },
+            { "x": 131, "y": 3940 },
+            { "x": 171, "y": 5190 },
+            { "x": 189, "y": 6290 },
+            { "x": 221, "y": 7590 },
+            { "x": 232, "y": 7790 },
+            { "x": 249, "y": 8390 },
+            { "x": 253, "y": 8440 },
+            { "x": 264, "y": 8620 },
+            { "x": 280, "y": 9220 },
+            { "x": 303, "y": 9780 },
+            { "x": 346, "y": 10780 },
+            { "x": 376, "y": 11120 },
+            { "x": 388, "y": 11220 },
+            { "x": 430, "y": 11300 },
+            { "x": 451, "y": 11400 }
+        ]
+
+        # user data
+        state_1 = [
+            { "label": "1", "y": 3 },
+            { "label": "2", "y": 6 },
+            { "label": "3", "y": 2 },
+            { "label": "4", "y": 7 },
+            { "label": "5", "y": 3 },
+            { "label": "6", "y": 9 },
+            { "label": "7", "y": 4 },
+            { "label": "8", "y": 6 },
+            { "label": "9", "y": 7 },
+            { "label": "10", "y": 3 },
+            { "label": "11", "y": 2 },
+            { "label": "12", "y": 3 },
+            { "label": "13", "y": 5 },
+            { "label": "14", "y": 6 },
+            { "label": "15", "y": 7 },
+            { "label": "16", "y": 8 },
+            { "label": "17", "y": 5 },
+            { "label": "18", "y": 4 },
+            { "label": "19", "y": 7 },
+            { "label": "20", "y": 8 },
+            { "label": "21", "y": 8 },
+            { "label": "22", "y": 8 },
+            { "label": "23", "y": 8 },
+        ]
+        
+        state_2 = [
+            { "label": "1", "y": 3 },
+            { "label": "2", "y": 6 },
+            { "label": "3", "y": 2 },
+            { "label": "4", "y": 3 },
+            { "label": "5", "y": 3 },
+            { "label": "6", "y": 5 },
+            { "label": "7", "y": 4 },
+            { "label": "8", "y": 6 },
+            { "label": "9", "y": 7 },
+            { "label": "10", "y": 2 },
+            { "label": "11", "y": 2 },
+            { "label": "12", "y": 3 },
+            { "label": "13", "y": 5 },
+            { "label": "14", "y": 6 },
+            { "label": "15", "y": 7 },
+            { "label": "16", "y": 8 },
+            { "label": "17", "y": 8 },
+            { "label": "18", "y": 4 },
+            { "label": "19", "y": 7 },
+            { "label": "20", "y": 8 },
+            { "label": "21", "y": 8 },
+            { "label": "22", "y": 8 },
+            { "label": "23", "y": 8 },
+        ]
+        
+        state_3 = [
+            { "label": "1", "y": 31 },
+            { "label": "2", "y": 6 },
+            { "label": "3", "y": 2 },
+            { "label": "4", "y": 7 },
+            { "label": "5", "y": 3 },
+            { "label": "6", "y": 9 },
+            { "label": "7", "y": 4 },
+            { "label": "8", "y": 6 },
+            { "label": "9", "y": 7 },
+            { "label": "10", "y": 3 },
+            { "label": "11", "y": 2 },
+            { "label": "12", "y": 3 },
+            { "label": "13", "y": 5 },
+            { "label": "14", "y": 6 },
+            { "label": "15", "y": 7 },
+            { "label": "16", "y": 8 },
+            { "label": "17", "y": 5 },
+            { "label": "18", "y": 4 },
+            { "label": "19", "y": 7 },
+            { "label": "20", "y": 8 },
+            { "label": "21", "y": 8 },
+            { "label": "22", "y": 8 },
+            { "label": "23", "y": 8 },
+        ]
+        
+        production = [
+            { "label": "1", "y": 31 },
+            { "label": "2", "y": 6 },
+            { "label": "3", "y": 2 },
+            { "label": "4", "y": 7 },
+            { "label": "5", "y": 3 },
+            { "label": "6", "y": 9 },
+            { "label": "7", "y": 4 },
+            { "label": "8", "y": 6 },
+            { "label": "9", "y": 7 },
+            { "label": "10", "y": 3 },
+            { "label": "11", "y": 2 },
+            { "label": "12", "y": 3 },
+            { "label": "13", "y": 5 },
+            { "label": "14", "y": 6 },
+            { "label": "15", "y": 7 },
+            { "label": "16", "y": 8 },
+            { "label": "17", "y": 5 },
+            { "label": "18", "y": 4 },
+            { "label": "19", "y": 7 },
+            { "label": "20", "y": 8 },
+            { "label": "21", "y": 8 },
+            { "label": "22", "y": 8 },
+            { "label": "23", "y": 8 },
+        ]
+        
+        off = [
+            { "label": "1", "y": 31 },
+            { "label": "2", "y": 6 },
+            { "label": "3", "y": 2 },
+            { "label": "4", "y": 7 },
+            { "label": "5", "y": 3 },
+            { "label": "6", "y": 9 },
+            { "label": "7", "y": 4 },
+            { "label": "8", "y": 6 },
+            { "label": "9", "y": 7 },
+            { "label": "10", "y": 3 },
+            { "label": "11", "y": 2 },
+            { "label": "12", "y": 3 },
+            { "label": "13", "y": 5 },
+            { "label": "14", "y": 6 },
+            { "label": "15", "y": 7 },
+            { "label": "16", "y": 8 },
+            { "label": "17", "y": 5 },
+            { "label": "18", "y": 4 },
+            { "label": "19", "y": 7 },
+            { "label": "20", "y": 8 },
+            { "label": "21", "y": 8 },
+            { "label": "22", "y": 8 },
+            { "label": "23", "y": 8 },
+        ]
+        
+        unknown = [
+            { "label": "1", "y": 31 },
+            { "label": "2", "y": 6 },
+            { "label": "3", "y": 2 },
+            { "label": "4", "y": 7 },
+            { "label": "5", "y": 3 },
+            { "label": "6", "y": 9 },
+            { "label": "7", "y": 4 },
+            { "label": "8", "y": 6 },
+            { "label": "9", "y": 7 },
+            { "label": "10", "y": 3 },
+            { "label": "11", "y": 2 },
+            { "label": "12", "y": 3 },
+            { "label": "13", "y": 5 },
+            { "label": "14", "y": 6 },
+            { "label": "15", "y": 7 },
+            { "label": "16", "y": 8 },
+            { "label": "17", "y": 5 },
+            { "label": "18", "y": 4 },
+            { "label": "19", "y": 7 },
+            { "label": "20", "y": 8 },
+            { "label": "21", "y": 8 },
+            { "label": "22", "y": 8 },
+            { "label": "23", "y": 8 },
+        ]
+
         context = {
-            "su_date_label": su_date_label,
-            "su_date_value": su_date_value,
-            "oc_label": oc_label,
-            "oc": oc,
-            "units_produced": sum_of_count_o,
-            "Availability_rate": ar,
-            "Performance_rate": pr,
-            "Quality_rate": qr,
+            "su_date_label": su_date_label, 'speed_data': speed_data,
+            "su_date_value": su_date_value, "oc_label": oc_label,
+            "oc": oc, 'distance_covered_data': distance_covered_data,
+            "units_produced": sum_of_count_o, "Availability_rate": ar,
+            "Performance_rate": pr, "Quality_rate": qr, "mean": mean,
             "oee": format(float(ar) * float(pr) * float(qr), ".2f"),
-            "mean": mean,
-            "maximun": max_count_o,
-            "medium": medium,
-            "std": std,
+            "maximun": max_count_o, "medium": medium, "std": std,
             "all_devices": Devices.objects.filter(owner=request.user, status="Active"),
-            "selected": my_device,
-            "pr_value": pr_value,
-            "ar_value": ar_value,
-            "qr_value": qr_value,
-            "oee_value": oee_value,
-            "st": date,
-            "ed": "",
-            "su_up": su_up,
+            "selected": my_device, "pr_value": pr_value, "ar_value": ar_value,
+            "qr_value": qr_value, "oee_value": oee_value, "st": date, "ed": "",
+            "su_up": su_up, "state_1": state_1, "state_2": state_2, "off": off,
+            "state_3": state_3, "production": production, "unknown": unknown
         }
         return render(request, "index.html", context)
     return render(request, "index.html")
