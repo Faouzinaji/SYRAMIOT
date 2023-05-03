@@ -72,25 +72,10 @@ def Login(request):
             else:
                 messages.warning(request, 'Invalid ID or password')
                 return redirect('Login')
-
-        # otp = str(random.randint(1000, 9999))
-        # print(otp)
-        # user.otp = otp
-        # user.save()
-        # mobile=user.phone
-        # #send_otp(mobile, otp)
-        # user_email = []
-        # user_email.append(user.owner.email)
-        # send_email_otp(user,user_email,otp)
-
-        # request.session['mobile'] = mobile
-        # request.session['Username'] = Username
-        # request.session['Password'] = Password
-        # return redirect('login_otp')
-
-
-
-    return render(request, 'Login.html')
+    else:
+        if request.user.is_authenticated:
+            return redirect('dashboard')
+        return render(request, 'Login.html')
 
 
 def login_otp(request):
