@@ -964,7 +964,10 @@ def dashboard(request):
             if obj.count_output:
                 total_output += float(obj.count_output)
             if obj.cadence:
-                total_cadence += float(obj.cadence)
+                try:
+                    total_cadence += float(obj.cadence)
+                except Exception as e:
+                    total_cadence += float(1)
             
             # Availability rate
             try:
@@ -979,7 +982,10 @@ def dashboard(request):
             # Quality rate
             _input = obj.count_input
             _output = obj.count_output
-            i_o = (float(_output) / float(_input)) * 100
+            try:
+                i_o = (float(_output) / float(_input)) * 100
+            except Exception as e:
+                i_o = float(100)
             quality_list.append({ "x": total_state, "y": i_o })
             
             # Performance rate
