@@ -989,7 +989,10 @@ def dashboard(request):
             quality_list.append({ "x": total_state, "y": i_o })
             
             # Performance rate
-            performance = (total_output / total_cadence) * 100
+            try:
+                performance = (total_output / total_cadence) * 100
+            except Exception as e:
+                performance = float(1)
             performance_rate.append({ "x": total_state, "y": performance })
 
 
