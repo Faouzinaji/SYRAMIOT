@@ -6,7 +6,11 @@ class DevicesAdmin(admin.ModelAdmin):
 
     list_display = ('device_id','serial_no','designation','owner')
 admin.site.register(Devices,DevicesAdmin)
-admin.site.register(API_Device_data)
+
+
+@admin.register(API_Device_data)
+class API_Device_dataAdmin(admin.ModelAdmin):
+    list_display = ('device_id','serial_no','device_password','state', 'cadence')
 
 
 @admin.register(APIKey)

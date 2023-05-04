@@ -60,9 +60,7 @@ def Login(request):
             messages.error(request,'No User found with this Email')
             return render(request, 'Login.html')
         else:
-            print(email, Password, "*" * 100)
-            user = auth.authenticate(email=email, password=Password)
-            print(user, "*" * 10)
+            user = auth.authenticate(username=email, password=Password)
             if user is not None:
                 if user.is_active:
                     login(request, user)
@@ -121,11 +119,9 @@ def login_otp(request):
 def Sign_Up(request):
 
     if request.method == 'POST':
-
         f_name = request.POST.get('fname')
         l_name = request.POST.get('lname')
         Email = request.POST.get('email')
-
         # Phone_no_input = str(request.POST.get('phone'))
         # #without_zero_cellno = Phone_no_input[1:]
         # Phone_no = '+35' + Phone_no_input
@@ -168,7 +164,7 @@ def Sign_Up(request):
                 if not Profile.objects.filter(phone=Phone_no):
                     x = User.objects.create_user(
                         first_name=f_name, last_name=l_name, email=Email,
-                        username=username,password=Password
+                        username=username, password=Password, is_active=False
                     )
                     y = Profile.objects.create(
                         owner=x, phone=Phone_no, user_selected_timezone=user_tz,

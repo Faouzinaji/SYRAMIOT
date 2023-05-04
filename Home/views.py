@@ -1,5 +1,4 @@
 import csv
-import googlemaps
 import requests
 import pandas as pd
 from django.contrib import messages, auth
@@ -7,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.core.paginator import Paginator
 from datetime import date
 from Home.decorators import allowed_users
 from authentication.models import Profile
@@ -677,6 +677,8 @@ def dashboard_date(request):
 
 # this is a daily dashboard
 def dashboard(request):
+    if not request.user.is_authenticated:
+        return redirect('Login')
     # users = Profile.objects.get(owner=request.user)
     sum_of_count_o = 0.0
     total_count_o = 0.0
@@ -916,7 +918,12 @@ def dashboard(request):
         oc_label.append("OFF")
         oc_label.append("Convoyeur")
         oc_label.append("Meeting")
-        iot_device = API_Device_data.objects.all()
+
+
+
+
+
+        iot_device = API_Device_data.objects.all().order_by("pk")
         # Chart Data
         speed_data = []
         distance_covered_data = []
@@ -928,13 +935,61 @@ def dashboard(request):
         _num = 0
         for obj in iot_device:
             if obj.count_input and obj.count_output:
-                data =  int(obj.count_output) - int(obj.count_input)
+                data =  int(obj.count_input) - int(obj.count_output)
                 if data < 0:
                      data = 0
                 distance_covered_data.append(
                     { "x": _num, "y": data }
                 )
                 _num += 1
+
+
+
+
+        availability_list = []
+        quality_list = []
+        performance_rate = []
+        total_state = 0
+        total_state_off = 0
+        total_state_production = 0
+        total_output = 0
+        total_cadence = 0
+        for obj in iot_device:
+            total_state += 1
+            if obj.state == "PRODUCTION":
+                total_state_production += 1
+            if obj.state == "OFF":
+                total_state_off += 1
+            
+            if obj.count_output:
+                total_output += float(obj.count_output)
+            if obj.cadence:
+                total_cadence += float(obj.cadence)
+            
+            # Availability rate
+            try:
+                calculation = (
+                    (total_state - total_state_off - total_state_production) / (total_state - total_state_off)
+                ) * 100
+            except Exception as e:
+                print(e)
+                calculation = 0
+            availability_list.append({ "x": total_state, "y": calculation })
+            
+            # Quality rate
+            _input = obj.count_input
+            _output = obj.count_output
+            i_o = (float(_output) / float(_input)) * 100
+            quality_list.append({ "x": total_state, "y": i_o })
+            
+            # Performance rate
+            performance = (total_output / total_cadence) * 100
+            performance_rate.append({ "x": total_state, "y": performance })
+
+
+        paginator = Paginator(iot_device, 25)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
 
         # user data
         state_1 = [
@@ -1106,7 +1161,8 @@ def dashboard(request):
             "qr_value": qr_value, "oee_value": oee_value, "st": date, "ed": "",
             "su_up": su_up, "state_1": state_1, "state_2": state_2, "off": off,
             "state_3": state_3, "production": production, "unknown": unknown,
-            "iot_device": iot_device
+            "iot_device": page_obj, "availability_list": availability_list,
+            'quality_list': quality_list, "performance_rate": performance_rate
         }
         return render(request, "index.html", context)
     return render(request, "index.html")

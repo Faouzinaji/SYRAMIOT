@@ -41,8 +41,8 @@ class API_Device_data(models.Model):
         max_length=250, blank=True, null=True, verbose_name='MTTR'
     )
 
-    def __str__(self):
-        return self.serial_no
+    # def __str__(self):
+    #     return self.device_id
 
     class Meta:
         verbose_name = 'My IOT Device Date'
