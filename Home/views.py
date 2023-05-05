@@ -923,17 +923,17 @@ def dashboard(request):
 
 
 
-        iot_device = API_Device_data.objects.all().order_by("pk")
+        devices_details = API_Device_data.objects.all().order_by("pk")
         # Chart Data
         speed_data = []
         distance_covered_data = []
         num = 0
-        for obj in iot_device:
+        for obj in devices_details:
             if obj.count_input:
                 speed_data.append({ "x": num, "y": int(obj.count_input) })
                 num += 1
         _num = 0
-        for obj in iot_device:
+        for obj in devices_details:
             if obj.count_input and obj.count_output:
                 data =  int(obj.count_input) - int(obj.count_output)
                 if data < 0:
@@ -954,7 +954,7 @@ def dashboard(request):
         total_state_production = 0
         total_output = 0
         total_cadence = 0
-        for obj in iot_device:
+        for obj in devices_details:
             total_state += 1
             if obj.state == "PRODUCTION":
                 total_state_production += 1
@@ -996,167 +996,92 @@ def dashboard(request):
             performance_rate.append({ "x": total_state, "y": performance })
 
 
-        paginator = Paginator(iot_device, 25)
+        paginator = Paginator(devices_details, 25)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
         # user data
-        state_1 = [
-            { "label": "1", "y": 3 },
-            { "label": "2", "y": 6 },
-            { "label": "3", "y": 2 },
-            { "label": "4", "y": 7 },
-            { "label": "5", "y": 3 },
-            { "label": "6", "y": 9 },
-            { "label": "7", "y": 4 },
-            { "label": "8", "y": 6 },
-            { "label": "9", "y": 7 },
-            { "label": "10", "y": 3 },
-            { "label": "11", "y": 2 },
-            { "label": "12", "y": 3 },
-            { "label": "13", "y": 5 },
-            { "label": "14", "y": 6 },
-            { "label": "15", "y": 7 },
-            { "label": "16", "y": 8 },
-            { "label": "17", "y": 5 },
-            { "label": "18", "y": 4 },
-            { "label": "19", "y": 7 },
-            { "label": "20", "y": 8 },
-            { "label": "21", "y": 8 },
-            { "label": "22", "y": 8 },
-            { "label": "23", "y": 8 },
-        ]
         
-        state_2 = [
-            { "label": "1", "y": 3 },
-            { "label": "2", "y": 6 },
-            { "label": "3", "y": 2 },
-            { "label": "4", "y": 3 },
-            { "label": "5", "y": 3 },
-            { "label": "6", "y": 5 },
-            { "label": "7", "y": 4 },
-            { "label": "8", "y": 6 },
-            { "label": "9", "y": 7 },
-            { "label": "10", "y": 2 },
-            { "label": "11", "y": 2 },
-            { "label": "12", "y": 3 },
-            { "label": "13", "y": 5 },
-            { "label": "14", "y": 6 },
-            { "label": "15", "y": 7 },
-            { "label": "16", "y": 8 },
-            { "label": "17", "y": 8 },
-            { "label": "18", "y": 4 },
-            { "label": "19", "y": 7 },
-            { "label": "20", "y": 8 },
-            { "label": "21", "y": 8 },
-            { "label": "22", "y": 8 },
-            { "label": "23", "y": 8 },
-        ]
-        
-        state_3 = [
-            { "label": "1", "y": 31 },
-            { "label": "2", "y": 6 },
-            { "label": "3", "y": 2 },
-            { "label": "4", "y": 7 },
-            { "label": "5", "y": 3 },
-            { "label": "6", "y": 9 },
-            { "label": "7", "y": 4 },
-            { "label": "8", "y": 6 },
-            { "label": "9", "y": 7 },
-            { "label": "10", "y": 3 },
-            { "label": "11", "y": 2 },
-            { "label": "12", "y": 3 },
-            { "label": "13", "y": 5 },
-            { "label": "14", "y": 6 },
-            { "label": "15", "y": 7 },
-            { "label": "16", "y": 8 },
-            { "label": "17", "y": 5 },
-            { "label": "18", "y": 4 },
-            { "label": "19", "y": 7 },
-            { "label": "20", "y": 8 },
-            { "label": "21", "y": 8 },
-            { "label": "22", "y": 8 },
-            { "label": "23", "y": 8 },
-        ]
-        
-        production = [
-            { "label": "1", "y": 31 },
-            { "label": "2", "y": 6 },
-            { "label": "3", "y": 2 },
-            { "label": "4", "y": 7 },
-            { "label": "5", "y": 3 },
-            { "label": "6", "y": 9 },
-            { "label": "7", "y": 4 },
-            { "label": "8", "y": 6 },
-            { "label": "9", "y": 7 },
-            { "label": "10", "y": 3 },
-            { "label": "11", "y": 2 },
-            { "label": "12", "y": 3 },
-            { "label": "13", "y": 5 },
-            { "label": "14", "y": 6 },
-            { "label": "15", "y": 7 },
-            { "label": "16", "y": 8 },
-            { "label": "17", "y": 5 },
-            { "label": "18", "y": 4 },
-            { "label": "19", "y": 7 },
-            { "label": "20", "y": 8 },
-            { "label": "21", "y": 8 },
-            { "label": "22", "y": 8 },
-            { "label": "23", "y": 8 },
-        ]
-        
-        off = [
-            { "label": "1", "y": 31 },
-            { "label": "2", "y": 6 },
-            { "label": "3", "y": 2 },
-            { "label": "4", "y": 7 },
-            { "label": "5", "y": 3 },
-            { "label": "6", "y": 9 },
-            { "label": "7", "y": 4 },
-            { "label": "8", "y": 6 },
-            { "label": "9", "y": 7 },
-            { "label": "10", "y": 3 },
-            { "label": "11", "y": 2 },
-            { "label": "12", "y": 3 },
-            { "label": "13", "y": 5 },
-            { "label": "14", "y": 6 },
-            { "label": "15", "y": 7 },
-            { "label": "16", "y": 8 },
-            { "label": "17", "y": 5 },
-            { "label": "18", "y": 4 },
-            { "label": "19", "y": 7 },
-            { "label": "20", "y": 8 },
-            { "label": "21", "y": 8 },
-            { "label": "22", "y": 8 },
-            { "label": "23", "y": 8 },
-        ]
-        
-        unknown = [
-            { "label": "1", "y": 31 },
-            { "label": "2", "y": 6 },
-            { "label": "3", "y": 2 },
-            { "label": "4", "y": 7 },
-            { "label": "5", "y": 3 },
-            { "label": "6", "y": 9 },
-            { "label": "7", "y": 4 },
-            { "label": "8", "y": 6 },
-            { "label": "9", "y": 7 },
-            { "label": "10", "y": 3 },
-            { "label": "11", "y": 2 },
-            { "label": "12", "y": 3 },
-            { "label": "13", "y": 5 },
-            { "label": "14", "y": 6 },
-            { "label": "15", "y": 7 },
-            { "label": "16", "y": 8 },
-            { "label": "17", "y": 5 },
-            { "label": "18", "y": 4 },
-            { "label": "19", "y": 7 },
-            { "label": "20", "y": 8 },
-            { "label": "21", "y": 8 },
-            { "label": "22", "y": 8 },
-            { "label": "23", "y": 8 },
-        ]
-
+        unknown_list = []
+        off_list = []
+        production_list = []
+        stop_list = []
+        breakdown_list = []
+        time = None
+        count = 0
+        unknown = 0
+        off = 0
+        production = 0
+        stop = 0
+        breakdown = 0
+        date_time = []
+        reset_count = 0
+        for obj in page_obj:
+            if not time:
+                time = obj.time
+            if obj.time == time and time not in date_time:
+                date_time.append(obj.time)
+                if obj.state and obj.state.upper() == "UNKNOWN_STATE":
+                    unknown += 1
+                    unknown_list.append({ "x": count, "y": unknown },)
+                    off_list.append({ "x": count, "y": 0 },)
+                    production_list.append({ "x": count, "y": 0 },)
+                    stop_list.append({ "x": count, "y": 0 },)
+                    breakdown_list.append({ "x": count, "y": 0 },)
+                if obj.state and obj.state.upper() == "OFF":
+                    off += 1
+                    unknown_list.append({ "x": count, "y": 0 },)
+                    off_list.append({ "x": count, "y": off },)
+                    production_list.append({ "x": count, "y": 0 },)
+                    stop_list.append({ "x": count, "y": 0 },)
+                    breakdown_list.append({ "x": count, "y": 0 },)
+                if obj.state and obj.state.upper() == "PRODUCTION":
+                    production += 1
+                    unknown_list.append({ "x": count, "y": 0 },)
+                    off_list.append({ "x": count, "y": 0 },)
+                    production_list.append({ "x": count, "y": production },)
+                    stop_list.append({ "x": count, "y": 0 },)
+                    breakdown_list.append({ "x": count, "y": 0 },)
+                if obj.state and obj.state.upper() == "STOP":
+                    stop += 1
+                    unknown_list.append({ "x": count, "y": 0 },)
+                    off_list.append({ "x": count, "y": 0 },)
+                    production_list.append({ "x": count, "y": 0 },)
+                    stop_list.append({ "x": count, "y": stop },)
+                    breakdown_list.append({ "x": count, "y": 0 },)
+                if obj.state and obj.state.upper() == "BREAKDOWN":
+                    breakdown += 1
+                    unknown_list.append({ "x": count, "y": 0 },)
+                    off_list.append({ "x": count, "y": 0 },)
+                    production_list.append({ "x": count, "y": 0 },)
+                    stop_list.append({ "x": count, "y": 0 },)
+                    breakdown_list.append({ "x": count, "y": breakdown },)
+            elif obj.time == time and time in date_time:
+                if obj.state and obj.state.upper() == "UNKNOWN_STATE":
+                    unknown += 1
+                    unknown_list[reset_count]['y'] = unknown
+                if obj.state and obj.state.upper() == "OFF":
+                    off += 1
+                    off_list[reset_count]['y'] = off
+                if obj.state and obj.state.upper() == "PRODUCTION":
+                    production += 1
+                    production_list[reset_count]['y'] = production
+                if obj.state and obj.state.upper() == "STOP":
+                    stop += 1
+                    stop_list[reset_count]['y'] = stop
+                if obj.state and obj.state.upper() == "BREAKDOWN":
+                    breakdown += 1
+                    breakdown_list[reset_count]['y'] = breakdown
+            else:
+                unknown = 0
+                off = 0
+                production = 0
+                stop = 0
+                breakdown = 0
+                reset_count += 1
+            if obj.time != time:
+                time = obj.time
+            count += 1
         context = {
             "su_date_label": su_date_label, 'speed_data': speed_data,
             "su_date_value": su_date_value, "oc_label": oc_label,
@@ -1168,10 +1093,11 @@ def dashboard(request):
             "all_devices": Devices.objects.filter(owner=request.user, status="Active"),
             "selected": my_device, "pr_value": pr_value, "ar_value": ar_value,
             "qr_value": qr_value, "oee_value": oee_value, "st": date, "ed": "",
-            "su_up": su_up, "state_1": state_1, "state_2": state_2, "off": off,
-            "state_3": state_3, "production": production, "unknown": unknown,
+            "su_up": su_up, "off": off_list, "unknown": unknown_list,
+            "production": production_list, 'stop_list': stop_list,
             "iot_device": page_obj, "availability_list": availability_list,
-            'quality_list': quality_list, "performance_rate": performance_rate
+            'quality_list': quality_list, "performance_rate": performance_rate,
+            'breakdown': breakdown_list
         }
         return render(request, "index.html", context)
     return render(request, "index.html")
