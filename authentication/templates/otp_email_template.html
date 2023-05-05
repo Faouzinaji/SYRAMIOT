@@ -26,13 +26,7 @@
         <td align="center" style="padding:0;">
             <table role="presentation"
                    style="width:602px;border-collapse:collapse;border:1px solid #cccccc;border-spacing:0;text-align:left;">
-                <tr>
-                    <td align="center" style="padding:40px 0 30px 0;">
-                        <img src="http://localhost:8000/static/dist/img/Sans%20titre.png"
-                             alt="" width="300" height="250" style="display:block;"/>
-                    </td>
-
-                </tr>
+                
                 <tr>
                     <td style="padding:36px 30px 42px 30px;">
                         <table role="presentation"
@@ -42,7 +36,7 @@
                                     <h1 style="font-size:24px;margin:0 0 20px 0;font-family:Arial,sans-serif;">
                                         Dear {{ first_name }}&nbsp;{{ last_name }}!</h1>
                                     <p style="margin:0 0 12px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;">
-                                        Your OTP for SYRAM is:{{ otp }}.<br>
+                                        Your OTP for SYRAM is:{{ otp }} and Your Web site is <a href="{{ domain }}">{{ domain }}</a>.<br>
                                         Thanks</p>
 
                                 </td>

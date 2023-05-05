@@ -1,6 +1,7 @@
 import pytz
 from datetime import datetime
 from django.contrib.auth import login, logout
+from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group, User
 from django.http import HttpResponse
@@ -12,7 +13,6 @@ from django.http import HttpResponse
 
 # Create your views here.
 from django.contrib import auth,messages
-import http.client
 
 from django.conf import settings
 
@@ -25,20 +25,42 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
 
-def send_email_otp(x,user_email,otp):
+def send_email_otp(request, user, user_email, otp):
+    pass
+    # current_site = get_current_site(request)
+    # mail_subject = 'Verification Code'
+    # mail_content = '1234'
+    # message = render_to_string('acc_active_email.html', {
+    #     'user': user,
+    #     'mail_content': mail_content,
+    #     'domain': current_site.domain,
+    # })
+    # all_email = ['adnanrafique340@gmail.com']
+    # to_email = user_email
+    # all_email.append(to_email)
+    # email = EmailMultiAlternatives(
+    #     mail_subject, message, to=all_email
+    # )
+    # email.attach_alternative(message, "text/html")
+    # email.send()
+    # print("mail send successfully")
 
 
-    subject = 'Verification Code'
 
-    html_content = render_to_string('otp_email_template.html',
-                                    {'first_name': x.owner.first_name, 'last_name': x.owner.last_name,'otp':otp
-                                     })
-    text_content = strip_tags(html_content)
+    # subject = 'Verification Code'
+    # html_content = render_to_string('otp_email_template.html', {
+    #     'first_name': user.owner.first_name,
+    #     'last_name': user.owner.last_name,
+    #     'otp':otp
+    # })
+    # text_content = strip_tags(html_content)
 
-    msg = EmailMultiAlternatives(subject, text_content, 'adnanrafique340@gmail.com', user_email)
-    msg.attach_alternative(html_content, "text/html")
-    msg.send()
-    return None
+    # msg = EmailMultiAlternatives(
+    #     subject, text_content, 'adnanrafique340@gmail.com', user_email
+    # )
+    # msg.attach_alternative(html_content, "text/html")
+    # msg.send()
+    # return None
 
 def Login(request):
     ''' This is the login method '''
@@ -90,20 +112,14 @@ def login_otp(request):
             messages.error(request, 'OTP required')
             return redirect('login_otp')
         profile = Profile.objects.filter(phone=mobile).first()
-        print(profile)
-
         if otp == profile.otp:
-
+            get_user = User.objects.get(username=Username)
+            get_user.is_active = True
+            get_user.save()
             user = auth.authenticate(username=Username, password=Password)
-            print(user)
             if user is not None:
-                if user.is_active:
-                 login(request, user)
-
-
-                 return redirect('dashboard')
-                else:
-                    messages.error(request,'Account is not activated')
+                login(request, user)
+                return redirect('dashboard')
             else:
              messages.warning(request, 'Invalid ID or password')
              return redirect('Login')
@@ -122,25 +138,12 @@ def Sign_Up(request):
         f_name = request.POST.get('fname')
         l_name = request.POST.get('lname')
         Email = request.POST.get('email')
-        # Phone_no_input = str(request.POST.get('phone'))
-        # #without_zero_cellno = Phone_no_input[1:]
-        # Phone_no = '+35' + Phone_no_input
-        # print(Phone_no)
-
         country_code = request.POST.get('country_code')
-        user_tz = request.POST.get('timezone')
-        try:
-            timezone_user = datetime.now(pytz.timezone(user_tz))
-        except:
-            timezone_user = "Not Found"
-        # perfect_country_code=country_code.split('()')
-        # print(perfect_country_code)
         char1 = '('
         char2 = ')'
         mystr = country_code
         perfect_country_code=mystr[mystr.find(char1) + 1: mystr.find(char2)]
         Phone_no_input = request.POST.get('phone')
-        print('phone no final rep is=',perfect_country_code+Phone_no_input)
         Phone_no = perfect_country_code+Phone_no_input
         Password = request.POST.get('password')
         username = Email
@@ -159,32 +162,53 @@ def Sign_Up(request):
         if not Password:
             messages.error(request, 'Password is required')
             return redirect('Sign_up')
-        try:
-            if not User.objects.filter(username=username).exists():
-                if not Profile.objects.filter(phone=Phone_no):
-                    x = User.objects.create_user(
-                        first_name=f_name, last_name=l_name, email=Email,
-                        username=username, password=Password, is_active=False
-                    )
-                    y = Profile.objects.create(
-                        owner=x, phone=Phone_no, user_selected_timezone=user_tz,
-                        user_register_at_his_timezones=timezone_user
-                    )
-                    x.save()
-                    y.save()
-                    messages.info(request, 'Account Created Successfully.')
-                    return redirect('Login')
-                else:
-                    messages.info(request,
-                                  'User is already exist against this Phone No ')
-                    return redirect('Sign_up')
+        # try:
+        if not User.objects.filter(username=username).exists():
+            if not Profile.objects.filter(phone=Phone_no):
+                otp = random.randint(100000,999999)
+                current_site = get_current_site(request)
+                mail_subject = 'Verification Code'
+                message = render_to_string('otp_email_template.html', {
+                    'first_name': f_name,
+                    'last_name': l_name,
+                    'domain': current_site.domain,
+                    'otp': otp
+                })
+                all_email = ['adnanrafique340@gmail.com']
+                to_email = Email
+                all_email.append(to_email)
+                email = EmailMultiAlternatives(
+                    mail_subject, message, to=all_email
+                )
+                email.attach_alternative(message, "text/html")
+                email.send()
+                print("mail send successfully")
+                user = User.objects.create_user(
+                    first_name=f_name, last_name=l_name, email=Email,
+                    username=username, password=Password, is_active=False
+                )
+                profile = Profile.objects.create(
+                    owner=user, phone=Phone_no, otp=otp
+                )
+                user.save()
+                profile.save()
+                messages.info(request, 'Account Created Successfully.')
+                
+                request.session['mobile'] = Phone_no
+                request.session['Username'] = Email
+                request.session['Password'] = Password
+                return redirect('login_otp')
             else:
-                messages.info(request, 'User is already exist against this Email.')
+                messages.info(request,
+                                'User is already exist against this Phone No ')
                 return redirect('Sign_up')
-        except Exception as e:
-            print(e)
-            messages.info(request, 'Ops something happens unwanted.Contact admin.')
+        else:
+            messages.info(request, 'User is already exist against this Email.')
             return redirect('Sign_up')
+        # except Exception as e:
+        #     print(e, "*" * 10)
+        #     messages.info(request, 'Ops something happens unwanted.Contact admin.')
+        #     return redirect('Sign_up')
     else:
         return render(request, 'Sign_Up.html')
 
