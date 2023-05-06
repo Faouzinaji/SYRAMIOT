@@ -1010,89 +1010,32 @@ def dashboard(request):
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
-        # user data
+        # Test 2
+        all_type = []; time_list = []
+        for data in devices_details:
+            if data.state and data.state.title() not in all_type:
+                all_type.append(data.state.title())
+
+            if data.time and data.time not in time_list:
+                time_list.append(data.time)
+
+        data_in_min_list = []
         
-        unknown_list = []
-        off_list = []
-        production_list = []
-        stop_list = []
-        breakdown_list = []
-        time = None
-        count = 0
-        unknown = 0
-        off = 0
-        production = 0
-        stop = 0
-        breakdown = 0
-        date_time = []
-        reset_count = 0
-        for obj in page_obj:
-            if not time:
-                time = obj.time
-            if obj.time == time and time not in date_time:
-                date_time.append(obj.time)
-                if obj.state and obj.state.upper() == "UNKNOWN_STATE":
-                    unknown += 1
-                    unknown_list.append({ "x": count, "y": unknown },)
-                    off_list.append({ "x": count, "y": 0 },)
-                    production_list.append({ "x": count, "y": 0 },)
-                    stop_list.append({ "x": count, "y": 0 },)
-                    breakdown_list.append({ "x": count, "y": 0 },)
-                if obj.state and obj.state.upper() == "OFF":
-                    off += 1
-                    unknown_list.append({ "x": count, "y": 0 },)
-                    off_list.append({ "x": count, "y": off },)
-                    production_list.append({ "x": count, "y": 0 },)
-                    stop_list.append({ "x": count, "y": 0 },)
-                    breakdown_list.append({ "x": count, "y": 0 },)
-                if obj.state and obj.state.upper() == "PRODUCTION":
-                    production += 1
-                    unknown_list.append({ "x": count, "y": 0 },)
-                    off_list.append({ "x": count, "y": 0 },)
-                    production_list.append({ "x": count, "y": production },)
-                    stop_list.append({ "x": count, "y": 0 },)
-                    breakdown_list.append({ "x": count, "y": 0 },)
-                if obj.state and obj.state.upper() == "STOP":
-                    stop += 1
-                    unknown_list.append({ "x": count, "y": 0 },)
-                    off_list.append({ "x": count, "y": 0 },)
-                    production_list.append({ "x": count, "y": 0 },)
-                    stop_list.append({ "x": count, "y": stop },)
-                    breakdown_list.append({ "x": count, "y": 0 },)
-                if obj.state and obj.state.upper() == "BREAKDOWN":
-                    breakdown += 1
-                    unknown_list.append({ "x": count, "y": 0 },)
-                    off_list.append({ "x": count, "y": 0 },)
-                    production_list.append({ "x": count, "y": 0 },)
-                    stop_list.append({ "x": count, "y": 0 },)
-                    breakdown_list.append({ "x": count, "y": breakdown },)
-            elif obj.time == time and time in date_time:
-                if obj.state and obj.state.upper() == "UNKNOWN_STATE":
-                    unknown += 1
-                    unknown_list[reset_count]['y'] = unknown
-                if obj.state and obj.state.upper() == "OFF":
-                    off += 1
-                    off_list[reset_count]['y'] = off
-                if obj.state and obj.state.upper() == "PRODUCTION":
-                    production += 1
-                    production_list[reset_count]['y'] = production
-                if obj.state and obj.state.upper() == "STOP":
-                    stop += 1
-                    stop_list[reset_count]['y'] = stop
-                if obj.state and obj.state.upper() == "BREAKDOWN":
-                    breakdown += 1
-                    breakdown_list[reset_count]['y'] = breakdown
-            else:
-                unknown = 0
-                off = 0
-                production = 0
-                stop = 0
-                breakdown = 0
-                reset_count += 1
-            if obj.time != time:
-                time = obj.time
-            count += 1
-        
+        for label in all_type:
+            count = 0
+            label_list = []
+            for time in time_list:
+                count += 1
+                single_line = devices_details.filter(state__icontains=label, time=time).count()
+                data_dic = {'x': count, 'y': single_line}
+                label_list.append(data_dic)
+            data_in_min_list.append(label_list)
+        data_in_min = {}
+        for key in all_type:
+            for value in data_in_min_list:
+                data_in_min[key] = value
+                data_in_min_list.remove(value)
+                break
         context = {
             "su_date_label": su_date_label, 'speed_data': speed_data,
             "su_date_value": su_date_value, "oc_label": oc_label,
@@ -1104,12 +1047,11 @@ def dashboard(request):
             "all_devices": Devices.objects.filter(owner=request.user, status="Active"),
             "selected": my_device, "pr_value": pr_value, "ar_value": ar_value,
             "qr_value": qr_value, "oee_value": oee_value, "st": date, "ed": "",
-            "su_up": su_up, "off": off_list, "unknown": unknown_list,
-            "production": production_list, 'stop_list': stop_list,
+            "su_up": su_up,
             "iot_device": page_obj, "availability_list": availability_list,
             'quality_list': quality_list, "performance_rate": performance_rate,
-            'breakdown': breakdown_list, 'datapoints': datapoints,
-            "oee_rate": oee_rate
+            'datapoints': datapoints,
+            "oee_rate": oee_rate, 'data_in_min': data_in_min
         }
         return render(request, "index.html", context)
     return render(request, "index.html")

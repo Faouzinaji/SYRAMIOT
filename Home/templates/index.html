@@ -214,9 +214,8 @@
             </section><!-- /.Left col -->
 
             <section class="col-lg-12 connectedSortable mt-5">
-              <div id="chartContainer_3" style="width: 100%; height: 360px; margin-top: 10px;"></div>
+              <div id="chartContainer_5" style="width: 100%; height: 360px; margin-top: 10px;"></div>
             </section><!-- /.Left col -->
-
             <section class="col-lg-12 connectedSortable mt-5">
               <div id="chartContainer_4" style="width: 100%; height: 360px; margin-top: 10px;"></div>
             </section><!-- /.Left col -->
@@ -273,7 +272,10 @@
         chart.render();
 
 
-      var chart = new CanvasJS.Chart("chartContainer_3", {
+
+        
+
+      var chart = new CanvasJS.Chart("chartContainer_5", {
       animationEnabled: true,
       exportEnabled: true,
       theme: "light2",
@@ -288,54 +290,18 @@
         shared: true
       },
       data: [
+      {% for label, value in data_in_min.items %}
       {
         type: "stackedColumn100",
-        name: "breakdown",
+        name: "{{ label|safe }}",
         showInLegend: true,
-        color: "#EA4335",
         toolTipContent: "{label} <br/> <span style='\"'color: {color};'\"'>{name}</span> <strong>{y} (#percent%)</strong>",
-        dataPoints: {{ breakdown|safe }}
+        dataPoints: {{ value|safe }},
       },
-      {
-        type: "stackedColumn100",
-        name: "off",
-        showInLegend: true,
-        color: "#FBBC04",
-        toolTipContent: "{label} <br/> <span style='\"'color: {color};'\"'>{name}</span> <strong>{y} (#percent%)</strong>",
-        dataPoints: {{ off|safe }}
-      },
-      {
-        type: "stackedColumn100",
-        name: "production",
-        showInLegend: true,
-        color: "#34A853",
-        toolTipContent: "{label} <br/> <span style='\"'color: {color};'\"'>{name}</span> <strong>{y} (#percent%)</strong>",
-        dataPoints: {{ production|safe }}
-      },
-      {
-        type: "stackedColumn100",
-        name: "stop",
-        showInLegend: true,
-        color: "#FF6D01",
-        toolTipContent: "{label} <br/> <span style='\"'color: {color};'\"'>{name}</span> <strong>{y} (#percent%)</strong>",
-        dataPoints: {{ stop_list|safe }}
-      },{
-        type: "stackedColumn100",
-        name: "unknown",
-        showInLegend: true,
-        color: "#46BDC6",
-        toolTipContent: "{label} <br/> <span style='\"'color: {color};'\"'>{name}</span> <strong>{y} (#percent%)</strong>",
-        dataPoints: {{ unknown|safe }}
-      },
+      {% endfor %}
     ]
     });
     chart.render();
-
-
-
-
-
-
 
       var chart = new CanvasJS.Chart("chartContainer", {
         animationEnabled: true,
