@@ -11,7 +11,8 @@ admin.site.register(Devices,DevicesAdmin)
 @admin.register(API_Device_data)
 class API_Device_dataAdmin(admin.ModelAdmin):
     list_display = (
-        'device_id','serial_no','device_password','state', 'cadence', 'time'
+        'device_id','serial_no','device_password','state', 'stop', 'cadence',
+        'time'
     )
 
 

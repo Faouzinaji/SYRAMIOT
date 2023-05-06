@@ -40,7 +40,6 @@ def Setting(request):
         lname = request.POST.get("lastname")
         email = request.POST.get("Email")
         phone = request.POST.get("phone")
-        print(fname, lname, email)
 
         if len(fname) != 0:
             users.first_name = fname
@@ -317,8 +316,6 @@ def find_distance(full_address):
 
     req = requests.get(GOOGLE_MAPS_API_URL, params=params)
     res = req.json()
-    print("res for origin address", res)
-
     result = res["results"][0]
 
     origin_latitude = result["geometry"]["location"]["lat"]
@@ -416,14 +413,12 @@ def dashboard_date(request):
             my_device = Devices.objects.filter(owner=request.user).first()
             datestrt = datetime.date.today()
             dateend = datetime.date.today()
-        print(datestrt, dateend)
         devices_details = API_Device_data.objects.filter(
             serial_no=my_device.serial_no,
             device_password=my_device.device_password,
             date__gte=datestrt,
             date__lte=dateend,
         )
-        print("devices", devices_details)
         sum_of_count_o_in_production = 0
         sum_of_cadence = 0
         su_up = []
@@ -669,7 +664,6 @@ def dashboard_date(request):
             "ed": dateend,
             "su_up": su_up,
         }
-        print(su_up)
         return render(request, "index2.html", context)
     except Exception as e:
         return render(request, "index2.html")
@@ -945,10 +939,11 @@ def dashboard(request):
 
 
 
-
+        all_label_list = []
         availability_list = []
         quality_list = []
         performance_rate = []
+        oee_rate = []
         total_state = 0
         total_state_off = 0
         total_state_production = 0
@@ -971,9 +966,10 @@ def dashboard(request):
             
             # Availability rate
             try:
-                calculation = (
+                calculation_data = (
                     (total_state - total_state_off - total_state_production) / (total_state - total_state_off)
-                ) * 100
+                )
+                calculation = calculation_data * 100
             except Exception as e:
                 print(e)
                 calculation = 0
@@ -983,19 +979,32 @@ def dashboard(request):
             _input = obj.count_input
             _output = obj.count_output
             try:
-                i_o = (float(_output) / float(_input)) * 100
+                i_o_data = (float(_output) / float(_input))
+                i_o = i_o_data * 100
             except Exception as e:
                 i_o = float(100)
+                i_o_data = float(1)
             quality_list.append({ "x": total_state, "y": i_o })
             
             # Performance rate
             try:
-                performance = (total_output / total_cadence) * 100
+                performance_data = (total_output / total_cadence)
+                performance = performance_data * 100
             except Exception as e:
                 performance = float(1)
             performance_rate.append({ "x": total_state, "y": performance })
 
+            # OEE
+            data = (calculation_data * i_o_data * performance_data) * 100
+            oee_rate.append({ "x": total_state, "y": data})
 
+            # State occurrences
+            if obj.stop and obj.stop.title() not in all_label_list:
+                all_label_list.append(obj.stop.title())
+        datapoints = []
+        for data in all_label_list:
+            label_count = devices_details.filter(stop__icontains=data).count()
+            datapoints.append({ "y": label_count, "label": data }),
         paginator = Paginator(devices_details, 25)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
@@ -1082,6 +1091,7 @@ def dashboard(request):
             if obj.time != time:
                 time = obj.time
             count += 1
+        
         context = {
             "su_date_label": su_date_label, 'speed_data': speed_data,
             "su_date_value": su_date_value, "oc_label": oc_label,
@@ -1097,7 +1107,8 @@ def dashboard(request):
             "production": production_list, 'stop_list': stop_list,
             "iot_device": page_obj, "availability_list": availability_list,
             'quality_list': quality_list, "performance_rate": performance_rate,
-            'breakdown': breakdown_list
+            'breakdown': breakdown_list, 'datapoints': datapoints,
+            "oee_rate": oee_rate
         }
         return render(request, "index.html", context)
     return render(request, "index.html")

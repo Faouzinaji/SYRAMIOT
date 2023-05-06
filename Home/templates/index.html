@@ -216,6 +216,10 @@
             <section class="col-lg-12 connectedSortable mt-5">
               <div id="chartContainer_3" style="width: 100%; height: 360px; margin-top: 10px;"></div>
             </section><!-- /.Left col -->
+
+            <section class="col-lg-12 connectedSortable mt-5">
+              <div id="chartContainer_4" style="width: 100%; height: 360px; margin-top: 10px;"></div>
+            </section><!-- /.Left col -->
             
           
           </div><!-- /.row (main row) -->
@@ -255,7 +259,18 @@
       }
 
 
-
+      var chart = new CanvasJS.Chart("chartContainer_4", {
+          animationEnabled: true,
+          exportEnabled: true,
+          title:{
+            fontFamily: "Tahoma"
+          },
+          data: [{
+            type: "column",
+            dataPoints: {{ datapoints|safe }}
+          }]
+        });
+        chart.render();
 
 
       var chart = new CanvasJS.Chart("chartContainer_3", {
@@ -418,6 +433,12 @@
           showInLegend: true,
           markerSize: 0,
           dataPoints: {{ performance_rate|safe }}
+        },{
+          type:"line",
+          name: "oee_rate",
+          showInLegend: true,
+          markerSize: 0,
+          dataPoints: {{ oee_rate|safe }}
         },]
       });
       chart.render();
