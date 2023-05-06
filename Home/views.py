@@ -992,6 +992,7 @@ def dashboard(request):
                 performance = performance_data * 100
             except Exception as e:
                 performance = float(1)
+                performance_data = float(1)
             performance_rate.append({ "x": total_state, "y": performance })
 
             # OEE
