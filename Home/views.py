@@ -939,7 +939,8 @@ def dashboard(request):
 
 
 
-        all_label_list = []
+        stop_label_list = []
+        breakdown_label_list = []
         availability_list = []
         quality_list = []
         performance_rate = []
@@ -999,13 +1000,30 @@ def dashboard(request):
             data = (calculation_data * i_o_data * performance_data) * 100
             oee_rate.append({ "x": total_state, "y": data})
 
-            # State occurrences
-            if obj.stop and obj.stop.title() not in all_label_list:
-                all_label_list.append(obj.stop.title())
+            # State occurrences Stop
+            if obj.state.title() == "Stop" and obj.stop and obj.stop.title() not in stop_label_list:
+                stop_label_list.append(obj.stop.title())
+
+            # State occurrences Breakdown
+            if obj.state.title() == "Breakdown" and obj.stop and obj.stop.title() not in breakdown_label_list:
+                breakdown_label_list.append(obj.stop.title())
+        
+        # Stop
         datapoints = []
-        for data in all_label_list:
-            label_count = devices_details.filter(stop__icontains=data).count()
+        for data in stop_label_list:
+            label_count = devices_details.filter(
+                stop__icontains=data, state__icontains="Stop"
+            ).count()
             datapoints.append({ "y": label_count, "label": data }),
+        # Breakdown
+        breakdown_datapoints = []
+        for data in breakdown_label_list:
+            label_count = devices_details.filter(
+                stop__icontains=data, state__icontains="Breakdown"
+            ).count()
+            breakdown_datapoints.append({ "y": label_count, "label": data }),
+
+
         paginator = Paginator(devices_details, 25)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
@@ -1047,11 +1065,11 @@ def dashboard(request):
             "all_devices": Devices.objects.filter(owner=request.user, status="Active"),
             "selected": my_device, "pr_value": pr_value, "ar_value": ar_value,
             "qr_value": qr_value, "oee_value": oee_value, "st": date, "ed": "",
-            "su_up": su_up,
+            "su_up": su_up, 'breakdown_datapoints': breakdown_datapoints,
             "iot_device": page_obj, "availability_list": availability_list,
             'quality_list': quality_list, "performance_rate": performance_rate,
-            'datapoints': datapoints,
-            "oee_rate": oee_rate, 'data_in_min': data_in_min
+            'datapoints': datapoints, "oee_rate": oee_rate,
+            'data_in_min': data_in_min
         }
         return render(request, "index.html", context)
     return render(request, "index.html")
