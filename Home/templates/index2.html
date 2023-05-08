@@ -146,6 +146,14 @@
               <canvas id="myChart12" style="width:100%;height: 300px;"></canvas><script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
 
             </section><!-- /.Left col -->
+
+            <section class="col-lg-12 connectedSortable mt-5">
+              <div id="chartContainer_1" style="width: 100%; height: 360px; margin-top: 10px;"></div>
+            </section><!-- /.Left col -->
+
+            <section class="col-lg-12 connectedSortable mt-5">
+              <div id="chartContainer_2" style="width: 100%; height: 360px; margin-top: 10px;"></div>
+            </section><!-- /.Left col -->
            
           
           </div><!-- /.row (main row) -->
@@ -158,6 +166,106 @@
     <!-- jQuery 2.1.3 -->
 
   </body>
+
+  
+  <script src="{% static 'dist/js/canvasjs.min.js' %}"></script>
+
+  <script>
+    
+    window.onload = function () {
+
+      
+      function toogleDataSeries(e){
+        if (typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+          e.dataSeries.visible = false;
+        } else{
+          e.dataSeries.visible = true;
+        }
+        chart.render();
+      }
+
+      var chart = new CanvasJS.Chart("chartContainer_1", {
+        animationEnabled: true,
+        theme: "light2",
+        exportEnabled: false,
+        title:{
+          text: "MTBF"
+        },
+        toolTip: {
+          shared: false
+        },
+        axisX: {
+          title: "Day",
+        },
+        axisY: {
+          suffix: "%",
+          titleFontColor: "#6D78AD",
+          lineThickness: 1,
+          lineColor: "#6D78AD",
+          tickColor: "#6D78AD"
+        },
+        
+        legend: {
+          cursor: "pointer",
+          verticalAlign: "top",
+          horizontalAlign: "center",
+          dockInsidePlotArea: true,
+          itemclick: toogleDataSeries,
+          fontSize: 12,
+          fontColor: "dimGrey",
+        },
+        data: [{
+          type:"line",
+          name: "MTBF",
+          showInLegend: true,
+          markerSize: 0,
+          dataPoints: {{ mtbf_list|safe }}
+        }]
+      });
+      chart.render();
+
+      var chart = new CanvasJS.Chart("chartContainer_2", {
+        animationEnabled: true,
+        theme: "light2",
+        exportEnabled: false,
+        title:{
+          text: "MTTR"
+        },
+        toolTip: {
+          shared: false
+        },
+        axisX: {
+          title: "Day",
+        },
+        axisY: {
+          suffix: "%",
+          titleFontColor: "#6D78AD",
+          lineThickness: 1,
+          lineColor: "#6D78AD",
+          tickColor: "#6D78AD"
+        },
+        
+        legend: {
+          cursor: "pointer",
+          verticalAlign: "top",
+          horizontalAlign: "center",
+          dockInsidePlotArea: true,
+          itemclick: toogleDataSeries,
+          fontSize: 12,
+          fontColor: "dimGrey",
+        },
+        data: [{
+          type:"line",
+          name: "MTTR",
+          showInLegend: true,
+          markerSize: 0,
+          dataPoints: {{ mttr_list|safe }}
+        }]
+      });
+      chart.render();
+
+    }
+    </script> 
 
   <script>
     var xValues = {{ su_date_label|safe }};

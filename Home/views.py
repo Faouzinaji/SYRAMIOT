@@ -640,9 +640,49 @@ def dashboard_date(request):
         oc_label.append("Convoyeur")
         oc_label.append("Meeting")
 
+        
+        devices_details = API_Device_data.objects.filter(
+            serial_no=my_device.serial_no,
+            device_password=my_device.device_password,
+        )
+        all_date_list = []
+        for obj in devices_details:
+            if obj.date:
+                all_date_list.append(obj.date)
+        all_date_set = set(all_date_list)
+        # MTBF Charts
+        mtbf_list = []
+        mttr_list = []
+        total_state = 0
+        for date in all_date_set:
+            all_state = devices_details.filter(date__lte=date).order_by('date')
+            all_state = all_state.exclude(state__icontains="Off").count()
+            all_mtbf = devices_details.filter(mtbf__icontains="true", date=date).count()
+            try:
+                summary = all_state / all_mtbf
+            except Exception as e:
+                print(e)
+                summary = 0
+            mtbf_list.append({ "x": total_state, "y": summary })
+
+            # MTTR
+            all_mtbf = devices_details.filter(
+                mtbf__icontains="true", date__lte=date
+            ).count()
+            all_mttr = devices_details.filter(
+                mttr__icontains="true", date__lte=date
+            ).count()
+
+            try:
+                summary_mttr = all_mttr / all_mtbf
+            except Exception as e:
+                print(e)
+                summary_mttr = 0
+            total_state += 1
+            mttr_list.append({ "x": total_state, "y": summary_mttr })
         context = {
-            "su_date_label": su_date_label,
-            "su_date_value": su_date_value,
+            "su_date_label": su_date_label, "mtbf_list": mtbf_list,
+            "su_date_value": su_date_value, "mttr_list": mttr_list,
             "oc_label": oc_label,
             "oc": oc,
             "units_produced": sum_of_count_o,
