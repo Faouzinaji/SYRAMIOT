@@ -1,11 +1,11 @@
 {% extends 'base2.html' %}
 {% load static %}
 {% block title %}
-    Add Device
+Add Device
 {% endblock %}
 {% block content %}
 
-    <body class="skin-blue">
+<body class="skin-blue">
     <div class="wrapper">
         <div class="content-wrapper">
             <section class="content-header">
@@ -16,7 +16,7 @@
                 <ol class="breadcrumb">
                     <li><a href="{% url 'dashboard' %}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
 
-                    {#                    <li class="active"><a href="{% url 'Inventory_dashboard' %}"> Inventory Dashboard</a></li>#}
+                    {# <li class="active"><a href="{% url 'Inventory_dashboard' %}"> Inventory Dashboard</a></li>#}
                     <li class="active">Edit Device</li>
                 </ol>
             </section>
@@ -33,27 +33,33 @@
                         <div>
 
                             <div class="col-md-6">
-                           <div class="form-group">
+                                <div class="form-group">
                                     <label for="designation">Designation:</label>
-                                    <input type="text" value="{{ device_details.designation }}" class="form-control" name="designation" id="designation" placeholder="Designation" required>
+                                    <input type="text" value="{{ device_details.designation }}" class="form-control"
+                                        name="designation" id="designation" placeholder="Designation" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email:</label>
+                                    <input type="email" value="{{ device_details.email }}" class="form-control"
+                                        name="email" id="email" placeholder="Email" required>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="serial_number">Serial Number:</label>
                                     <input class="form-control" type="number" name="serial_number" min="0"
-
-                                           placeholder="Serial Number" value="{{ device_details.serial_no }}" required>
+                                        placeholder="Serial Number" value="{{ device_details.serial_no }}" required>
 
                                 </div>
                                 <div class="form-group">
                                     <label for="password">Password:</label>
-                                    <input type="password" class="form-control" name="password" id="password" placeholder="Password" value="{{ device_details.device_password }}" required>
+                                    <input type="password" class="form-control" name="password" id="password"
+                                        placeholder="Password" value="{{ device_details.device_password }}" required>
 
                                 </div>
-                                            <div class="form-group">
+                                <div class="form-group">
                                     <button type="submit" class="btn btn-primary">Update</button>
                                     <small><a href="#" class="btn btn-md btn-danger text-white"
-                                              id="delete_btn">Cancel</a></small>
+                                            id="delete_btn">Cancel</a></small>
                                 </div>
 
 
@@ -72,7 +78,6 @@
     </div>
 
 
-    </body>
+</body>
 
 {% endblock %}
-
