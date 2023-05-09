@@ -125,11 +125,15 @@ def add_device(request):
     context = {"user_profile": users}
     if request.method == "POST":
         designation = request.POST.get("designation")
+        email = request.POST.get("email")
         sr_no = request.POST.get("serial_number")
         password = request.POST.get("password")
 
         if not designation:
             messages.error(request, "Designation is required")
+            return redirect("add_device", context)
+        if not email:
+            messages.error(request, "Email is required")
             return redirect("add_device", context)
         if not sr_no:
             messages.error(request, "Serial No. is required")
@@ -177,6 +181,7 @@ def add_device(request):
                 designation=designation,
                 device_password=password,
                 owner=request.user,
+                email=email
             ).save()
             messages.success(request, "Device added Successfully.")
             return redirect("active_devices")
@@ -197,12 +202,14 @@ def edit_device(request, id):
     context = {"user_profile": users, "device_details": device_details}
     if request.method == "POST":
         designation = request.POST.get("designation")
+        email = request.POST.get("email")
         sr_no = request.POST.get("serial_number")
         password = request.POST.get("password")
 
         try:
             device_details.serial_no = sr_no
             device_details.designation = designation
+            device_details.email = email
             device_details.device_password = password
             device_details.owner = request.user
             device_details.save()
@@ -641,6 +648,7 @@ def dashboard_date(request):
         oc_label.append("Meeting")
 
         
+
         devices_details = API_Device_data.objects.filter(
             serial_no=my_device.serial_no,
             device_password=my_device.device_password,
@@ -657,7 +665,7 @@ def dashboard_date(request):
         for date in all_date_set:
             all_state = devices_details.filter(date__lte=date).order_by('date')
             all_state = all_state.exclude(state__icontains="Off").count()
-            all_mtbf = devices_details.filter(mtbf__icontains="true", date=date).count()
+            all_mtbf = devices_details.filter(mtbf__icontains="1", date=date).count()
             try:
                 summary = all_state / all_mtbf
             except Exception as e:
@@ -667,10 +675,10 @@ def dashboard_date(request):
 
             # MTTR
             all_mtbf = devices_details.filter(
-                mtbf__icontains="true", date__lte=date
+                mtbf__icontains="1", date__lte=date
             ).count()
             all_mttr = devices_details.filter(
-                mttr__icontains="true", date__lte=date
+                mttr__icontains="1", date__lte=date
             ).count()
 
             try:
@@ -680,6 +688,9 @@ def dashboard_date(request):
                 summary_mttr = 0
             total_state += 1
             mttr_list.append({ "x": total_state, "y": summary_mttr })
+
+
+
         context = {
             "su_date_label": su_date_label, "mtbf_list": mtbf_list,
             "su_date_value": su_date_value, "mttr_list": mttr_list,
