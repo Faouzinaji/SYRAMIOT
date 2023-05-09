@@ -7,9 +7,18 @@ from authentication.models import User
 from Home.models import *
 
 from authentication.models import *
-# Create your models here.
+
+
+PLAN_CHOICES = (
+    ("device", "Device"),
+    ("certificate", "Certificate"),
+)
+
 class Price_plan(models.Model):
     title = models.CharField(max_length=150)
+    plan_choice = models.CharField(
+        max_length=255, choices=PLAN_CHOICES, default="device", unique=True
+    )
     price = models.IntegerField()
     highlight_status = models.BooleanField(default=False, null=True)
 

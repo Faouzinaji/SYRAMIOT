@@ -28,7 +28,7 @@ def checkout(request):
 def checkout_page(request):
     sr_no_devices = request.session.get('sr_no_devices')
     device = Devices.objects.filter(device_id__in=sr_no_devices)
-    price = Price_plan.objects.all().last()
+    price = Price_plan.objects.get(plan_choice="certificate")
     total_amount = 0
     for obj in device:
         total_amount += price.price
@@ -43,7 +43,6 @@ def checkout_session(request, billing_id):
     stripe_api = APIKey.objects.get(api_code='stripe')
     stripe.api_key = stripe_api.api_secret
     session = stripe.checkout.Session.create(
-    shipping_address_collection={"allowed_countries": ["US", "CA"]},
         payment_method_types=['card'],
         line_items=[{
             'price_data': {
@@ -78,40 +77,13 @@ def checkout_session_for_buy_devices(request):
     name = request.session["name"]
     rate = get_easypost_rates(name, street, city, state, zip_code, country, ph_no)
     rate = rate[0]
-    item = Price_plan.objects.all().last()
-    # item_pricex = float(item.price)
-    # item_price = item_pricex + float(rate)
-    # item_price_int = int(item_price)
+    item = Price_plan.objects.get(plan_choice='device')
     stripe_api = APIKey.objects.get(api_code='stripe')
     stripe.api_key = stripe_api.api_secret
     _rate = float(rate) * 100
     _rate = int(_rate)
-    # customer = stripe.Customer.create(
-    #     email="jane.doe@example.com",
-    #     shipping={
-    #         "name": "Jane Doe",
-    #         "address": {
-    #             "line1": "123 Main St",
-    #             "line2": "",
-    #             "city": "Anytown",
-    #             "state": "CA",
-    #             "country": "US",
-    #             "postal_code": "12345"
-    #         }
-    #     }
-    # )
-
     # print(customer)
     session = stripe.checkout.Session.create(
-        # shipping_address_collection={"allowed_countries": ["US", "CA", "BD"]},
-        # shipping_address_collection={
-        #     'allowed_countries': ['US', 'CA'],
-        #     # 'options': {
-        #     #     'default_country': 'US',
-        #     #     'label': 'Shipping'
-        #     # }
-        # },
-        # billing_address_collection='auto',
         shipping_options=[
             {
                 "shipping_rate_data": {
