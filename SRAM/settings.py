@@ -183,13 +183,16 @@ MESSAGE_TAGS = {
 # STRIPE_PUBLISHABLE_KEY = 'pk_test_51I5Cg7A8dHHTBZppaME598N8pGskKkydRZhCAtroWn6OAkyKsEjKT8px7X6dCiDhwuXtBZNducGzoW4P1TDkg6l900m2ojEHyH'
 # STRIPE_SECRET_KEY = 'sk_test_51I5Cg7A8dHHTBZpp2V1H66jOYkZILSjzlLB88oUVFCs8gXTfx5bD3U70PYRYvrnDeMD9biAHo8ISUKuoCCk6xx4n008YXEPTo5'
 
+# aspmx.l.google.com
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # During development only # noqa
-EMAIL_HOST = 'mail.privateemail.com'
+EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'no_reply@syram.eu'
 EMAIL_HOST_PASSWORD = 'Asyram123#' # need password
 EMAIL_USE_TLS = True
 EMAIL_USE_SSl = False
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Email: no_reply@syram.eu Password: Asyram123# old: adnanrafique340@gmail.com
