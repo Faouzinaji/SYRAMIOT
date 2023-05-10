@@ -1,5 +1,5 @@
 from django.core.management.utils import get_random_secret_key
-
+DEBUG = False
 database = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
