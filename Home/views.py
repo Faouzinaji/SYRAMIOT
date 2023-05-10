@@ -1053,11 +1053,11 @@ def dashboard(request):
             oee_rate.append({ "x": total_state, "y": data})
 
             # State occurrences Stop
-            if obj.state.title() == "Stop" and obj.stop and obj.stop.title() not in stop_label_list:
+            if obj.state and obj.state.title() == "Stop" and obj.stop and obj.stop.title() not in stop_label_list:
                 stop_label_list.append(obj.stop.title())
 
             # State occurrences Breakdown
-            if obj.state.title() == "Breakdown" and obj.stop and obj.stop.title() not in breakdown_label_list:
+            if obj.state and obj.state.title() == "Breakdown" and obj.stop and obj.stop.title() not in breakdown_label_list:
                 breakdown_label_list.append(obj.stop.title())
         
         # Stop
