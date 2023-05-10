@@ -1,5 +1,6 @@
 import csv
 import requests
+import datetime
 import pandas as pd
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
@@ -671,7 +672,7 @@ def dashboard_date(request):
             except Exception as e:
                 print(e)
                 summary = 0
-            mtbf_list.append({ "x": total_state, "y": summary })
+            mtbf_list.append({ "label": date, "y": summary })
 
             # MTTR
             all_mtbf = devices_details.filter(
@@ -687,7 +688,7 @@ def dashboard_date(request):
                 print(e)
                 summary_mttr = 0
             total_state += 1
-            mttr_list.append({ "x": total_state, "y": summary_mttr })
+            mttr_list.append({ "label": date, "y": summary_mttr })
 
 
 
@@ -1025,7 +1026,7 @@ def dashboard(request):
             except Exception as e:
                 print(e)
                 calculation = 0
-            availability_list.append({ "x": total_state, "y": calculation })
+            availability_list.append({ "label": total_state, "y": calculation })
             
             # Quality rate
             _input = obj.count_input
@@ -1061,19 +1062,26 @@ def dashboard(request):
         
         # Stop
         datapoints = []
+        num = 0
+        total_stop = 0
         for data in stop_label_list:
             label_count = devices_details.filter(
                 stop__icontains=data, state__icontains="Stop"
             ).count()
-            datapoints.append({ "y": label_count, "label": data }),
+            total_stop += label_count
+            datapoints.append({"label": data, "y": label_count, "color": f"#17{num}EA2" }),
+            num += 2
         # Breakdown
         breakdown_datapoints = []
+        total_breakdown = 0
+        num2 = 0
         for data in breakdown_label_list:
             label_count = devices_details.filter(
                 stop__icontains=data, state__icontains="Breakdown"
             ).count()
-            breakdown_datapoints.append({ "y": label_count, "label": data }),
-
+            total_breakdown += label_count
+            breakdown_datapoints.append({ "y": label_count, "label": data, "color": f"#17{num2}EA2" }),
+            num2 += 1
 
         paginator = Paginator(devices_details, 25)
         page_number = request.GET.get('page')
@@ -1096,7 +1104,7 @@ def dashboard(request):
             for time in time_list:
                 count += 1
                 single_line = devices_details.filter(state__icontains=label, time=time).count()
-                data_dic = {'x': count, 'y': single_line}
+                data_dic = {'label': count, 'y': single_line}
                 label_list.append(data_dic)
             data_in_min_list.append(label_list)
         data_in_min = {}
@@ -1120,7 +1128,8 @@ def dashboard(request):
             "iot_device": page_obj, "availability_list": availability_list,
             'quality_list': quality_list, "performance_rate": performance_rate,
             'datapoints': datapoints, "oee_rate": oee_rate,
-            'data_in_min': data_in_min
+            'data_in_min': data_in_min, "total_breakdown": total_breakdown,
+            "total_stop": total_stop
         }
         return render(request, "index.html", context)
     return render(request, "index.html")
