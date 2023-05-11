@@ -186,6 +186,7 @@
                             id
                         },
                         success: function (response) {
+                            alert('http://' + $(location).attr('host') + '/payments/checkout_page')
                             window.location.href = 'http://' + $(location).attr('host') + '/payments/checkout_page'; //Will take you to Google.
                             // window.location.href = 'https://syram-iot-final.herokuapp.com/payments/checkout_page'; //Will take you to Google.
 

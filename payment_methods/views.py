@@ -17,6 +17,7 @@ def checkout(request):
         total_amount = 0
         for obj in device:
             total_amount += price.price
+        print(sr_no_devices, "*" * 100)
         request.session['sr_no_devices'] = sr_no_devices
         context = {
             'sr_no_devices': sr_no_devices, 'price': price,
@@ -26,6 +27,7 @@ def checkout(request):
 
 
 def checkout_page(request):
+
     sr_no_devices = request.session.get('sr_no_devices')
     device = Devices.objects.filter(device_id__in=sr_no_devices)
     price = Price_plan.objects.get(plan_choice="certificate")
