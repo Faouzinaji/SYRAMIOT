@@ -690,7 +690,151 @@ def dashboard_date(request):
             total_state += 1
             mttr_list.append({ "label": date, "y": summary_mttr })
 
+        # Chart Data
+        speed_data = []
+        distance_covered_data = []
+        num = 0
+        scraped_unit = 0
+        for obj in devices_details:
+            if obj.count_input:
+                speed_data.append({ "x": num, "y": int(obj.count_input) })
+                num += 1
+        _num = 0
+        for obj in devices_details:
+            if obj.count_input and obj.count_output:
+                data =  int(obj.count_input) - int(obj.count_output)
+                if data < 0:
+                     data = 0
+                distance_covered_data.append(
+                    { "x": _num, "y": data }
+                )
+                scraped_unit += data
+                _num += 1
 
+
+
+        stop_label_list = []
+        breakdown_label_list = []
+        availability_list = []
+        quality_list = []
+        performance_rate = []
+        oee_rate = []
+        total_state = 0
+        total_state_off = 0
+        total_state_production = 0
+        total_output = 0
+        total_cadence = 0
+        for obj in devices_details:
+            total_state += 1
+            if obj.state == "PRODUCTION":
+                total_state_production += 1
+            if obj.state == "OFF":
+                total_state_off += 1
+            
+            if obj.count_output:
+                total_output += float(obj.count_output)
+            if obj.cadence:
+                try:
+                    total_cadence += float(obj.cadence)
+                except Exception as e:
+                    total_cadence += float(1)
+            
+            # Availability rate
+            try:
+                calculation_data = (
+                    (total_state - total_state_off - total_state_production) / (total_state - total_state_off)
+                )
+                calculation = calculation_data * 100
+            except Exception as e:
+                print(e)
+                calculation = 0
+            availability_list.append({ "label": total_state, "y": calculation })
+            
+            # Quality rate
+            _input = obj.count_input
+            _output = obj.count_output
+            try:
+                i_o_data = (float(_output) / float(_input))
+                i_o = i_o_data * 100
+            except Exception as e:
+                i_o = float(100)
+                i_o_data = float(1)
+            quality_list.append({ "x": total_state, "y": i_o })
+            
+            # Performance rate
+            try:
+                performance_data = (total_output / total_cadence)
+                performance = performance_data * 100
+            except Exception as e:
+                performance = float(1)
+                performance_data = float(1)
+            performance_rate.append({ "x": total_state, "y": performance })
+
+            # OEE
+            data = (calculation_data * i_o_data * performance_data) * 100
+            oee_rate.append({ "x": total_state, "y": data})
+
+            # State occurrences Stop
+            if obj.state and obj.state.title() == "Stop" and obj.stop and obj.stop.title() not in stop_label_list:
+                stop_label_list.append(obj.stop.title())
+
+            # State occurrences Breakdown
+            if obj.state and obj.state.title() == "Breakdown" and obj.stop and obj.stop.title() not in breakdown_label_list:
+                breakdown_label_list.append(obj.stop.title())
+        
+        # Stop
+        datapoints = []
+        num = 0
+        total_stop = 0
+        for data in stop_label_list:
+            label_count = devices_details.filter(
+                stop__icontains=data, state__icontains="Stop"
+            ).count()
+            total_stop += label_count
+            datapoints.append({"label": data, "y": label_count, "color": f"#17{num}EA2" }),
+            num += 2
+        # Breakdown
+        breakdown_datapoints = []
+        total_breakdown = 0
+        num2 = 0
+        for data in breakdown_label_list:
+            label_count = devices_details.filter(
+                stop__icontains=data, state__icontains="Breakdown"
+            ).count()
+            total_breakdown += label_count
+            breakdown_datapoints.append({ "y": label_count, "label": data, "color": f"#17{num2}EA2" }),
+            num2 += 1
+
+        paginator = Paginator(devices_details, 25)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        # Test 2
+        all_type = []; time_list = []
+        for data in devices_details:
+            if data.state and data.state.title() not in all_type:
+                all_type.append(data.state.title())
+
+            if data.time and data.time not in time_list:
+                time_list.append(data.time)
+
+        data_in_min_list = []
+        
+        for label in all_type:
+            count = 0
+            label_list = []
+            for time in time_list:
+                count += 1
+                single_line = devices_details.filter(state__icontains=label, time=time).count()
+                data_dic = {'label': count, 'y': single_line}
+                label_list.append(data_dic)
+            data_in_min_list.append(label_list)
+        data_in_min = {}
+        for key in all_type:
+            for value in data_in_min_list:
+                data_in_min[key] = value
+                data_in_min_list.remove(value)
+                break
 
         context = {
             "su_date_label": su_date_label, "mtbf_list": mtbf_list,
@@ -714,7 +858,15 @@ def dashboard_date(request):
             "oee_value": oee_value,
             "st": datestrt,
             "ed": dateend,
-            "su_up": su_up,
+            "su_up": su_up, "scraped_unit": 0,
+            "mtbf": devices_details.filter(mtbf="1", hours="").count(),
+            "mttr": devices_details.filter(mttr="1").count(),
+            'data_in_min': data_in_min, "total_breakdown": total_breakdown,
+            "total_stop": total_stop, "scraped_unit": scraped_unit,
+            "datapoints": datapoints, "breakdown_datapoints": breakdown_datapoints,
+            "speed_data": speed_data, "distance_covered_data": distance_covered_data,
+            "availability_list": availability_list, "quality_list": quality_list,
+            "performance_rate": performance_rate, "oee_rate": oee_rate
         }
         return render(request, "index2.html", context)
     except Exception as e:
@@ -974,6 +1126,7 @@ def dashboard(request):
         speed_data = []
         distance_covered_data = []
         num = 0
+        scraped_unit = 0
         for obj in devices_details:
             if obj.count_input:
                 speed_data.append({ "x": num, "y": int(obj.count_input) })
@@ -987,6 +1140,7 @@ def dashboard(request):
                 distance_covered_data.append(
                     { "x": _num, "y": data }
                 )
+                scraped_unit += data
                 _num += 1
 
 
@@ -1129,7 +1283,9 @@ def dashboard(request):
             'quality_list': quality_list, "performance_rate": performance_rate,
             'datapoints': datapoints, "oee_rate": oee_rate,
             'data_in_min': data_in_min, "total_breakdown": total_breakdown,
-            "total_stop": total_stop
+            "total_stop": total_stop, "scraped_unit": scraped_unit,
+            "mtbf": devices_details.filter(mtbf="1", hours="").count(),
+            "mttr": devices_details.filter(mttr="1").count(),
         }
         return render(request, "index.html", context)
     return render(request, "index.html")
