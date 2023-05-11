@@ -13,7 +13,7 @@ def checkout(request):
     if request.method == 'POST':
         sr_no_devices = request.POST.getlist('id[]')
         device = Devices.objects.filter(device_id__in=sr_no_devices)
-        price = Price_plan.objects.all().last()
+        price = Price_plan.objects.get(plan_choice="certificate")
         total_amount = 0
         for obj in device:
             total_amount += price.price
