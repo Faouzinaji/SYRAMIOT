@@ -229,20 +229,32 @@ def forget_password(request):
         user=User.objects.filter(username=Username).first()
         print(user)
 
-        x= Profile.objects.filter(owner=user).first()
+        profile= Profile.objects.filter(owner=user).first()
         if user is None:
             messages.error(request,'User not found with this Email')
             return render(request, 'forget-password.html')
 
-        otp = str(random.randint(1000, 9999))
-        x.otp = otp
-        x.save()
-        mobile=x.phone
-        print(otp)
-        user_email = []
-        user_email.append(x.owner.email)
-        send_email_otp(user, user_email, otp)
-        request.session['mobile'] = mobile
+        otp = random.randint(100000,999999)
+        profile.otp=otp
+        profile.save()
+        current_site = get_current_site(request)
+        mail_subject = 'Verification Code'
+        message = render_to_string('otp_email_template.html', {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'domain': current_site.domain,
+            'otp': otp
+        })
+        all_email = ['adnanrafique340@gmail.com']
+        to_email = user.email
+        all_email.append(to_email)
+        email = EmailMultiAlternatives(
+            mail_subject, message, to=all_email
+        )
+        email.attach_alternative(message, "text/html")
+        email.send()
+        print("mail send successfully")
+        request.session['mobile'] = profile.phone
         request.session['Username'] = Username
         return redirect('reset_password')
     return render(request,'forget-password.html')

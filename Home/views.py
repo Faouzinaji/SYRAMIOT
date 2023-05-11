@@ -650,10 +650,10 @@ def dashboard_date(request):
 
         
 
-        devices_details = API_Device_data.objects.filter(
-            serial_no=my_device.serial_no,
-            device_password=my_device.device_password,
-        )
+        # devices_details = API_Device_data.objects.filter(
+        #     serial_no=my_device.serial_no,
+        #     device_password=my_device.device_password,
+        # )
         all_date_list = []
         for obj in devices_details:
             if obj.date:
@@ -1121,7 +1121,7 @@ def dashboard(request):
 
 
 
-        devices_details = API_Device_data.objects.all().order_by("pk")
+        # devices_details = API_Device_data.objects.all().order_by("pk")
         # Chart Data
         speed_data = []
         distance_covered_data = []
@@ -1176,18 +1176,18 @@ def dashboard(request):
                 calculation_data = (
                     (total_state - total_state_off - total_state_production) / (total_state - total_state_off)
                 )
-                calculation = calculation_data * 100
+                calculation = round(calculation_data * 100)
             except Exception as e:
                 print(e)
                 calculation = 0
+                calculation_data = 0
             availability_list.append({ "label": total_state, "y": calculation })
-            
             # Quality rate
             _input = obj.count_input
             _output = obj.count_output
             try:
                 i_o_data = (float(_output) / float(_input))
-                i_o = i_o_data * 100
+                i_o = (round(i_o_data * 100))
             except Exception as e:
                 i_o = float(100)
                 i_o_data = float(1)
@@ -1196,7 +1196,7 @@ def dashboard(request):
             # Performance rate
             try:
                 performance_data = (total_output / total_cadence)
-                performance = performance_data * 100
+                performance = round(performance_data * 100)
             except Exception as e:
                 performance = float(1)
                 performance_data = float(1)
@@ -1204,7 +1204,7 @@ def dashboard(request):
 
             # OEE
             data = (calculation_data * i_o_data * performance_data) * 100
-            oee_rate.append({ "x": total_state, "y": data})
+            oee_rate.append({ "x": total_state, "y": round(data)})
 
             # State occurrences Stop
             if obj.state and obj.state.title() == "Stop" and obj.stop and obj.stop.title() not in stop_label_list:
