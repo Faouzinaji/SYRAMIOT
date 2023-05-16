@@ -1,5 +1,5 @@
 {% extends 'base2.html' %}
-{% load static %}
+{% load static scraped %}
 {% block title %}
     Dashboard
 {% endblock %}
@@ -45,6 +45,35 @@ ul li a{
 a {
   color: #1840A8;
 }
+table {
+  width: 90% !important;
+  margin: 0 auto;
+}
+.table-borderd, th, td{
+  padding: 5px;
+}
+.print-logo{
+  display: none;
+}
+form {
+    background: #f3f6ff;
+    padding: 7px 15px;
+    border-radius: 5px;
+}
+.chart-table{
+  display: none !important;
+}
+@media print {
+  .chart-table, .print-logo {
+    display: block !important;
+  }
+  form {
+    display: none !important;
+  }
+  #Units, #myChart12, #myChart, #myChart2, #myChart12, #rate, #mixed, #stop {
+    page-break-before: always;
+  }
+}
 </style>
   <body class="skin-blue">
     <div class="wrapper">
@@ -74,34 +103,69 @@ a {
         <!-- Main content -->
         <section class="content">
           <!-- Small boxes (Stat box) -->
-
-          <div class="row">
-            <div class="col-lg-3">
-             
-          <h3 style="font-size: 15px;">Selected Device : {{ selected.designation }}</h3>
-          <h3 style="font-size: 15px;">Selected Date :  {{st}}</h3>
-         
-              <form action=""method="post">
-                {% csrf_token %}
-                
-              <div class="form-group has-feedback">
+          <form method="get">
+            <div class="row" style="padding-bottom: 15px;">
+              <div class="col-md-3">
+                <label for="device_id">Device</label>
                 <select id="device_id" name="device_id"  class="form-control" required>
+                  {% if not all_devices %}
+                  <option value="">-------------</option>
+                  {% endif %}
                   {% for item in all_devices %}
-                  <option value="{{item.device_id}}">Device : {{ item.designation }}</option>
+                  <option value="{{item.device_id}}">{{ item.designation }}</option>
                   {% endfor %}
                 </select>
-                </div>
-              <div class="form-group has-feedback">
-                <small>Date:</small>
-                <input class="form-control" type="date"  name="date" placeholder="Enter date" required >
-             
               </div>
-                <button type="submit" class="btn btn-primary ">Search</button>
-                
-              </form>
-              
+              <div class="col-md-3">
+                <label for="date">Date</label>
+                <input id="date" class="form-control" type="date"  name="date" placeholder="Enter date" >
+               
+              </div>
+              <div class="col-md-3">
+                <label for="hours">Hours</label>
+                <select id="hours" name="hours"  class="form-control">
+                  <option value="">------------</option>
+                  <option value="0">0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
+                  <option value="11">11</option>
+                  <option value="12">12</option>
+                  <option value="13">13</option>
+                  <option value="14">14</option>
+                  <option value="15">15</option>
+                  <option value="16">16</option>
+                  <option value="17">17</option>
+                  <option value="18">18</option>
+                  <option value="19">19</option>
+                  <option value="20">20</option>
+                  <option value="21">21</option>
+                  <option value="22">22</option>
+                  <option value="23">23</option>
+                </select>
+              </div>
+              <div class="col-md-3" style="margin-top: 25px;">
+                <div class="btn-group" role="group" aria-label="Basic example" style="width: 100%;">
+                  <button type="submit" class="btn btn-primary" style="width: 50%;">Search</button>
+                  <button type="button" onclick="window.print();return false;"  style="width: 50%;" class="btn btn-info">Print</button>
+                </div>
+              </div>
             </div>
-       
+          </form>
+          <div class="row print-logo">
+            <div class="col-md-12">
+              <!-- logo -->
+              <img alt="Brand" style="width: 100px;" src="{% static 'dist/img/Sans titre.png' %}">
+            </div>
+          </div>
+          <div class="row">
             <div class="col-lg-3 col-xs-6">
               <!-- small box -->
               <div class="small-box shadow bg-1">
@@ -260,16 +324,89 @@ a {
 
             <section class="col-lg-12 connectedSortable mt-5">
               <div id="Units" style="width: 100%; height: 360px;"></div>
-           
             </section><!-- /.Left col -->
+            <section id="unit-table" class="chart-table">
+              <div class="row">
+                <div class="col-md-12">
+                  <table style="width: 100%; margin: 0 auto;">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Hours</th>
+                        <th>Production Unit</th>
+                        <th>Scraped Unit</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for data in devices_details %}
+                      <tr>
+                        <td>{{ data.date }}</td>
+                        <td>{{ data.hours }}</td>
+                        <td>{{ data.count_input }}</td>
+                        <td>{{ data.pk|scrapeds }}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
             <section class="col-lg-12 connectedSortable mt-5">
               <div id="rate" style="width: 100%; height: 360px;"></div>
-           
             </section><!-- /.Left col -->
+            <section id="rate-table" class="chart-table">
+              <div class="row">
+                <div class="col-md-12">
+                  <table style="width: 100%; margin: 0 auto;">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Hours</th>
+                        <th>Availability-Rate</th>
+                        <th>Quality-Rate</th>
+                        <th>Performance-Rate</th>
+                        <th>OEE</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for data, availability, quality, performance, oee in asa %}
+                      <tr>
+                        <td>{{ data.date }}</td>
+                        <td>{{ data.hours }}</td>
+                        <td>{{ availability|get_availability }}</td>
+                        <td>{{ quality|get_get_quality }}</td>
+                        <td>{{ performance|get_performance }}</td>
+                        <td>{{ oee|get_oee }}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
 
             <section class="col-lg-12 connectedSortable mt-5">
               <div id="mixed" style="width: 100%; height: 360px; margin-top: 10px;"></div>
             </section><!-- /.Left col -->
+            <section id="rate-table" class="chart-tables">
+              <div class="row">
+                <div class="col-md-12">
+                  <table style="width: 100%; margin: 0 auto;">
+                    <thead>
+                        {% for label, value in data_in_min.items %}
+                        <tr>
+                        <th>{{ label }}</th>
+                        <th>{% for data in value %} {{ data|mix_data }}, {% endfor %}</th>
+                      </tr>
+                        {% endfor %}
+                    </thead>
+                    <tbody>
+                      
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
             <div class="col-md-6">
               <section class="col-lg-12 connectedSortable mt-5">
                 <div id="stop" style="width: 100%; height: 360px; margin-top: 10px;"></div>
@@ -328,76 +465,6 @@ a {
         chart.render();
       }
 
-
-      var chart = new CanvasJS.Chart("stop", {
-          animationEnabled: true,
-          exportEnabled: false,
-          title: {
-              text: "{{ total_stop }} \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Stop",
-              dockInsidePlotArea: true,
-              verticalAlign: "center",
-              maxWidth: 140,
-              fontSize: 22
-            },
-          data: [{
-            type: "doughnut",
-            indexLabel: "{label} - {y}%",
-            dataPoints: {{ datapoints|safe }}
-          }]
-        });
-        chart.render();
-
-      var chart = new CanvasJS.Chart("brackdown", {
-          animationEnabled: true,
-          exportEnabled: false,
-          title: {
-              text: "{{ total_breakdown }} \n\n\n\n\n Breakdown",
-              dockInsidePlotArea: true,
-              verticalAlign: "center",
-              maxWidth: 140,
-              fontSize: 22
-            },
-          data: [{
-            type: "doughnut",
-            innerRadius: "70%",
-            indexLabel: "{label} - {y}%",
-            dataPoints: {{ breakdown_datapoints|safe }}
-          }]
-        });
-        chart.render();
-
-
-
-        
-
-      var chart = new CanvasJS.Chart("mixed", {
-      animationEnabled: true,
-      exportEnabled: true,
-      theme: "light2",
-      axisY:{
-        suffix: "%"
-      },
-      axisX: {
-        labelAngle: 0,
-        labelTextAlign: "center"
-      },
-      toolTip: {
-        shared: true
-      },
-      data: [
-      {% for label, value in data_in_min.items %}
-      {
-        type: "stackedColumn100",
-        name: "{{ label|safe }}",
-        showInLegend: true,
-        color: "#17"+ {{ forloop.counter }} +"EA2",
-        toolTipContent: "{label} <br/> <span style='\"'color: {color};'\"'>{name}</span> <strong>{y} (#percent%)</strong>",
-        dataPoints: {{ value|safe }},
-      },
-      {% endfor %}
-    ]
-    });
-    chart.render();
 
       var chart = new CanvasJS.Chart("Units", {
         animationEnabled: true,
@@ -504,6 +571,73 @@ a {
         },]
       });
       chart.render();
+
+
+      var chart = new CanvasJS.Chart("stop", {
+          animationEnabled: true,
+          exportEnabled: false,
+          title: {
+              text: "{{ total_stop }} \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Stop",
+              dockInsidePlotArea: true,
+              verticalAlign: "center",
+              maxWidth: 140,
+              fontSize: 22
+            },
+          data: [{
+            type: "doughnut",
+            indexLabel: "{label} - {y}%",
+            dataPoints: {{ datapoints|safe }}
+          }]
+        });
+        chart.render();
+
+      var chart = new CanvasJS.Chart("brackdown", {
+          animationEnabled: true,
+          exportEnabled: false,
+          title: {
+              text: "{{ total_breakdown }} \n\n\n\n\n Breakdown",
+              dockInsidePlotArea: true,
+              verticalAlign: "center",
+              maxWidth: 140,
+              fontSize: 22
+            },
+          data: [{
+            type: "doughnut",
+            innerRadius: "70%",
+            indexLabel: "{label} - {y}%",
+            dataPoints: {{ breakdown_datapoints|safe }}
+          }]
+        });
+        chart.render();
+
+      var chart = new CanvasJS.Chart("mixed", {
+      animationEnabled: true,
+      exportEnabled: true,
+      theme: "light2",
+      axisY:{
+        suffix: "%"
+      },
+      axisX: {
+        labelAngle: 0,
+        labelTextAlign: "center"
+      },
+      toolTip: {
+        shared: true
+      },
+      data: [
+      {% for label, value in data_in_min.items %}
+      {
+        type: "stackedColumn100",
+        name: "{{ label|safe }}",
+        showInLegend: true,
+        color: "#17"+ {{ forloop.counter }} +"EA2",
+        toolTipContent: "{label} <br/> <span style='\"'color: {color};'\"'>{name}</span> <strong>{y} (#percent%)</strong>",
+        dataPoints: {{ value|safe }},
+      },
+      {% endfor %}
+    ]
+    });
+    chart.render();
 
     }
     </script>  

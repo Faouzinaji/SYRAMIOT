@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
+from django.db.models import Sum
 from datetime import date
 from Home.decorators import allowed_users
 from authentication.models import Profile
@@ -893,12 +894,14 @@ def dashboard(request):
     sc = 0
     scp = 0
 
-    if request.method == "POST":
-        device_id = request.POST.get("device_id")
-        date = request.POST.get("date")
+    device_id = request.GET.get("device_id")
+    date = request.GET.get("date")
+    hours = request.GET.get("hours")
+    if device_id:
         my_device = Devices.objects.get(device_id=device_id)
     else:
         my_device = Devices.objects.filter(owner=request.user).first()
+    if not date:
         date = datetime.date.today()
     devices_details = None
     if my_device:
@@ -907,6 +910,29 @@ def dashboard(request):
             device_password=my_device.device_password,
             date=date,
         )
+        sss = API_Device_data.objects.filter(
+            serial_no=my_device.serial_no,
+            device_password=my_device.device_password,
+            date=date,
+        ).values_list('hours', 'count_input', 'count_output')
+        _hours = []
+        _input = []
+        _output = []
+        count = 0
+        for a in sss:
+            if a[0] not in _hours:
+                _hours.append(a[0])
+            if a[1] not in _input:
+                _input.append(a[1])
+            if a[2] not in _output:
+                _output.append(a[2])
+            if a[0] in _hours and a[1] in _input:
+                pass
+
+        print(f"Hours: {_hours}, Input: {_input}, Output: {_output}")
+        devices_details = devices_details.distinct('hours')
+        if hours:
+            devices_details = devices_details.filter(hours=hours)
         sum_of_count_o_in_production = 0
         sum_of_cadence = 0
         su_up = []
@@ -1121,7 +1147,6 @@ def dashboard(request):
 
 
 
-        # devices_details = API_Device_data.objects.all().order_by("pk")
         # Chart Data
         speed_data = []
         distance_covered_data = []
@@ -1129,7 +1154,7 @@ def dashboard(request):
         scraped_unit = 0
         for obj in devices_details:
             if obj.count_input:
-                speed_data.append({ "x": num, "y": int(obj.count_input) })
+                speed_data.append({ "label": obj.hours, "y": int(obj.count_input) })
                 num += 1
         _num = 0
         for obj in devices_details:
@@ -1138,7 +1163,7 @@ def dashboard(request):
                 if data < 0:
                      data = 0
                 distance_covered_data.append(
-                    { "x": _num, "y": data }
+                    { "label": obj.hours, "y": data }
                 )
                 scraped_unit += data
                 _num += 1
@@ -1181,7 +1206,7 @@ def dashboard(request):
                 print(e)
                 calculation = 0
                 calculation_data = 0
-            availability_list.append({ "label": total_state, "y": calculation })
+            availability_list.append({ "label": obj.hours, "y": calculation })
             # Quality rate
             _input = obj.count_input
             _output = obj.count_output
@@ -1191,7 +1216,7 @@ def dashboard(request):
             except Exception as e:
                 i_o = float(100)
                 i_o_data = float(1)
-            quality_list.append({ "x": total_state, "y": i_o })
+            quality_list.append({ "label": obj.hours, "y": i_o })
             
             # Performance rate
             try:
@@ -1200,11 +1225,11 @@ def dashboard(request):
             except Exception as e:
                 performance = float(1)
                 performance_data = float(1)
-            performance_rate.append({ "x": total_state, "y": performance })
+            performance_rate.append({ "label": obj.hours, "y": performance })
 
             # OEE
             data = (calculation_data * i_o_data * performance_data) * 100
-            oee_rate.append({ "x": total_state, "y": round(data)})
+            oee_rate.append({ "label": obj.hours, "y": round(data)})
 
             # State occurrences Stop
             if obj.state and obj.state.title() == "Stop" and obj.stop and obj.stop.title() not in stop_label_list:
@@ -1214,6 +1239,11 @@ def dashboard(request):
             if obj.state and obj.state.title() == "Breakdown" and obj.stop and obj.stop.title() not in breakdown_label_list:
                 breakdown_label_list.append(obj.stop.title())
         
+
+
+        asa = zip(devices_details, availability_list, quality_list, performance_rate, oee_rate)
+
+
         # Stop
         datapoints = []
         num = 0
@@ -1248,17 +1278,17 @@ def dashboard(request):
                 all_type.append(data.state.title())
 
             if data.time and data.time not in time_list:
-                time_list.append(data.time)
+                time_list.append(data.hours)
 
         data_in_min_list = []
         
         for label in all_type:
             count = 0
             label_list = []
-            for time in time_list:
+            for hours in time_list:
                 count += 1
-                single_line = devices_details.filter(state__icontains=label, time=time).count()
-                data_dic = {'label': count, 'y': single_line}
+                single_line = devices_details.filter(state__icontains=label, hours=hours).count()
+                data_dic = {'label': hours, 'y': single_line}
                 label_list.append(data_dic)
             data_in_min_list.append(label_list)
         data_in_min = {}
@@ -1286,6 +1316,7 @@ def dashboard(request):
             "total_stop": total_stop, "scraped_unit": scraped_unit,
             "mtbf": devices_details.filter(mtbf="1", hours="").count(),
             "mttr": devices_details.filter(mttr="1").count(),
+            "devices_details": devices_details, "asa": asa, 'all_type': all_type
         }
         return render(request, "index.html", context)
     return render(request, "index.html")

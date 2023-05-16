@@ -245,7 +245,7 @@ def forget_password(request):
             'domain': current_site.domain,
             'otp': otp
         })
-        all_email = ['adnanrafique340@gmail.com']
+        all_email = []
         to_email = user.email
         all_email.append(to_email)
         email = EmailMultiAlternatives(
