@@ -879,24 +879,21 @@ def dashboard(request):
     if not request.user.is_authenticated:
         return redirect('Login')
     # users = Profile.objects.get(owner=request.user)
-    sum_of_count_o = 0.0
-    total_count_o = 0.0
-    max_count_o = 0.0
-    sum_of_count_i = 0.0
-    sum_of_state_production = 0.0
-    sum_of_state_other = 0.0
+    sum_of_count_o = 0
+    total_count_o = 0
+    sum_of_count_i = 0
+    sum_of_state_production = 0
+    sum_of_state_other = 0
     median_of_count_o_Array = []
     flag = 0
     pre_date = ""
     def_su = 0
-    su_date_label = []
     su_date_value = []
     sc = 0
     scp = 0
 
     device_id = request.GET.get("device_id")
     date = request.GET.get("date")
-    hours = request.GET.get("hours")
     if device_id:
         my_device = Devices.objects.get(device_id=device_id)
     else:
@@ -931,8 +928,6 @@ def dashboard(request):
 
         print(f"Hours: {_hours}, Input: {_input}, Output: {_output}")
         devices_details = devices_details.distinct('hours')
-        if hours:
-            devices_details = devices_details.filter(hours=hours)
         sum_of_count_o_in_production = 0
         sum_of_cadence = 0
         su_up = []
@@ -986,7 +981,6 @@ def dashboard(request):
                         qr_value.append(format((float(sco) / float(sci)), ".1f"))
                     else:
                         qr_value.append(0)
-                    su_date_label.append(pre_date)
                     pre_date = data.hours
                     su_up.append(sp)
                     su_date_value.append(abs(def_su))
@@ -1009,7 +1003,6 @@ def dashboard(request):
                         sp = sp + 1
                     else:
                         so = so + 1
-        su_date_label.append(pre_date)
         su_date_value.append(abs(def_su))
         su_up.append(sp)
 
@@ -1029,23 +1022,7 @@ def dashboard(request):
 
         for i in range(0, len(pr_value)):
             oee_value.append(float(pr_value[i]) * float(ar_value[i]) * float(qr_value[i]))
-        for data in devices_details:
-            sum_of_cadence = sum_of_cadence + float((data.cadence).replace(",", "."))
-            if data.count_output:
-                median_of_count_o_Array.append(int(data.count_output))
-                if int(max_count_o) < int(data.count_output):
-                    max_count_o = int(data.count_output)
-                total_count_o = total_count_o + 1
-                sum_of_count_o = sum_of_count_o + int(data.count_output)
-            if data.count_input:
-                sum_of_count_i = sum_of_count_i + int(data.count_input)
-            if data.state == "Production":
-                sum_of_count_o_in_production = sum_of_count_o_in_production + int(
-                    data.count_output
-                )
-                sum_of_state_production = sum_of_state_production + 1
-            else:
-                sum_of_state_other = sum_of_state_other + 1
+        
         std_arr = np.array(median_of_count_o_Array)
         try:
             ar = format(float(sum_of_state_production) / float(sum_of_state_other), ".2f")
@@ -1077,74 +1054,7 @@ def dashboard(request):
             std = format(std_arr.std(), ".2f")
         except:
             std = "Not Available"
-        oc = []
-        oc_label = []
-        oc.append(
-            API_Device_data.objects.filter(
-                serial_no=my_device.serial_no,
-                device_password=my_device.device_password,
-                date=date,
-                state="general stop",
-            ).count()
-        )
-        oc.append(
-            API_Device_data.objects.filter(
-                serial_no=my_device.serial_no,
-                device_password=my_device.device_password,
-                date=date,
-                state="Break",
-            ).count()
-        )
-        oc.append(
-            API_Device_data.objects.filter(
-                serial_no=my_device.serial_no,
-                device_password=my_device.device_password,
-                date=date,
-                state="Available",
-            ).count()
-        )
-        oc.append(
-            API_Device_data.objects.filter(
-                serial_no=my_device.serial_no,
-                device_password=my_device.device_password,
-                date=date,
-                state="Waiting for material",
-            ).count()
-        )
-        oc.append(
-            API_Device_data.objects.filter(
-                serial_no=my_device.serial_no,
-                device_password=my_device.device_password,
-                date=date,
-                state="OFF",
-            ).count()
-        )
-        oc.append(
-            API_Device_data.objects.filter(
-                serial_no=my_device.serial_no,
-                device_password=my_device.device_password,
-                date=date,
-                state="Convoyeur",
-            ).count()
-        )
-        oc.append(
-            API_Device_data.objects.filter(
-                serial_no=my_device.serial_no,
-                device_password=my_device.device_password,
-                date=date,
-                state="Meeting",
-            ).count()
-        )
-        oc_label.append("general stop")
-        oc_label.append("Break")
-        oc_label.append("Available")
-        oc_label.append("Waiting for material")
-        oc_label.append("OFF")
-        oc_label.append("Convoyeur")
-        oc_label.append("Meeting")
-
-
-
+        
 
 
         # Chart Data
@@ -1298,13 +1208,13 @@ def dashboard(request):
                 data_in_min_list.remove(value)
                 break
         context = {
-            "su_date_label": su_date_label, 'speed_data': speed_data,
-            "su_date_value": su_date_value, "oc_label": oc_label,
-            "oc": oc, 'distance_covered_data': distance_covered_data,
+            'speed_data': speed_data,
+            "su_date_value": su_date_value,
+            'distance_covered_data': distance_covered_data,
             "units_produced": sum_of_count_o, "Availability_rate": ar,
             "Performance_rate": pr, "Quality_rate": qr, "mean": mean,
             "oee": format(float(ar) * float(pr) * float(qr), ".2f"),
-            "maximun": max_count_o, "medium": medium, "std": std,
+            "medium": medium, "std": std,
             "all_devices": Devices.objects.filter(owner=request.user, status="Active"),
             "selected": my_device, "pr_value": pr_value, "ar_value": ar_value,
             "qr_value": qr_value, "oee_value": oee_value, "st": date, "ed": "",
