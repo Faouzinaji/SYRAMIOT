@@ -1,13 +1,8 @@
 {% load static %}
 <header class="main-header">
-
-    {#      width="225px" height="170px"#}
-    <!-- Logo -->
-
-    {#        <a href="{% url 'dashboard' %}" class="logo"><b>BCDR</b></a>#}
-    {#        <a href="{% url 'dashboard' %}" class="logo" style="background-color:#62929E; "><b>Lyrix</b></a>#}
-    <a href="{% url 'dashboard' %}" class="logo" style="background-color:#62929E; "><b><img
-            src="{% static 'dist/img/Sans titre.png' %}" width="35px" height="35px" class="img-circle" alt=""/>SYRAM</b></a>
+    <a href="{% url 'dashboard' %}" class="logo" style="background-color:#62929E; ">
+        <img src="{% static 'dist/img/logo.png' %}" class="img-circle" alt=""/>
+    </a>
     <!-- Header Navbar: style can be found in header.less -->
     {#      <a href="{% url 'dashboard' %}" class="logo"><img style="background-color:#62929E; " src="{% static '/dist/img/logo.jpeg' %}" width="225px" height="170px"  alt="" /></a>#}
 
@@ -33,9 +28,7 @@
                         {% if user_profile.picture %}
 
                             <img src="{{ user_profile.picture.url }}" class="user-image" alt=""/>
-                        {% else %}
-                            <img width="35%" height="35%" src="{% static 'dist/img/avatar5.png' %}" alt="img"
-                                 class="user-image">
+                    
                         {% endif %}
 
                         <span class="hidden-xs">
@@ -53,11 +46,8 @@
                         <!-- User image -->
                         <li class="user-header" style="background-color:#62929E; ">
                             {% if user_profile.picture %}
-
                                 <img src="{{ user_profile.picture.url }}" class="user-image" alt="User Image"/>
-                            {% else %}
-                                <img width="35%" height="35%" src="{% static 'dist/img/avatar5.png' %}" alt="img"
-                                     class="user-image">
+                            
                             {% endif %}
                             <p>
                                 {{ user.first_name }} {{ user.last_name }}<br>
@@ -83,10 +73,18 @@
                     <div id="google_translate_element"></div>
                     <script> 
                     function googleTranslateElementInit() {
-                    new google.translate.TranslateElement({
-                        pageLanguage: 'en'
-                    }, 'google_translate_element');
-                    }
+                        new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+
+                        var $googleDiv = $("#google_translate_element .skiptranslate");
+                        var $googleDivChild = $("#google_translate_element .skiptranslate div");
+                        $googleDivChild.next().remove();
+
+                        $googleDiv.contents().filter(function(){
+                            return this.nodeType === 3 && $.trim(this.nodeValue) !== '';
+                        }).remove();
+                        $(".goog-te-combo").addClass("form-control");
+
+                        }
                     </script>
                     <script src="http://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script> 
                 </li>
@@ -98,7 +96,7 @@
 <!-- Left side column. contains the logo and sidebar -->
  
 
-<aside class="main-sidebar" style="background-color:#5c5959; ">
+<aside class="main-sidebar" style="background-color:#0131B4; ">
 
 
     <!-- sidebar: style can be found in sidebar.less -->
@@ -106,21 +104,8 @@
 
     <section class="sidebar">
         <div class="user-panel">
-            <div class="pull-left image">
-                {#              <img src="{% static 'dist/img/user2-160x160.jpg' %}" class="img-circle" alt="User Image" />#}
-                {% if user_profile.picture %}
-
-                    <img src="{{ user_profile.picture.url }}" class="img-circle" alt="User Image"/>
-                {% else %}
-                    <img width="35%" height="35%" class="img-circle" src="{% static 'dist/img/avatar5.png' %}"
-                         alt="img">
-                {% endif %}
-            </div>
             <div class="pull-left info">
                 <p>{{ user.first_name }}  {{ user.last_name }}</p>
-
-
-                <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
             </div>
         </div>
        
@@ -130,20 +115,20 @@
 
 
             <li class="active treeview" >
-                <a href="{% url 'dashboard' %}" style="background-color:#5c5959; ">
+                <a href="{% url 'dashboard' %}" style="background-color:#0131B4; ">
                     <i class=" fa fa-fw fa-home"></i> <span>Home</span> </i>
                 </a>
 
             </li>
-            <li class="active treeview" style="background-color:#5c5959; ">
-                <a href="{% url 'order_device' %}" style="background-color:#5c5959; ">
-                    <i class=" fa fa-fw fa-hand-o-right"></i><span>Order</span> </i>
+            <li class="active treeview" style="background-color:#0131B4; ">
+                <a href="{% url 'order_device' %}" style="background-color:#0131B4; ">
+                    <i class="fa fa-cart-plus" aria-hidden="true"></i> <span>Order new devices</span> </i>
                 </a>
 
             </li>
-            <li class="active treeview" style="background-color:#5c5959; ">
-                <a href="{% url 'active_devices' %}" style="background-color:#5c5959; ">
-                    <i class=" fa fa-fw fa-hand-o-right"></i><span>My Devices</span> </i>
+            <li class="active treeview" style="background-color:#0131B4; ">
+                <a href="{% url 'active_devices' %}" style="background-color:#0131B4;">
+                    <i class=" fa fa-fw fa-hand-o-right"></i> <span>My Devices</span> </i>
                 </a>
 
             </li>
@@ -152,13 +137,13 @@
 
             <li class="treeview">
 
-                <a href="#" style="background-color:#5c5959; ">
+                <a href="#" style="background-color:#0131B4; ">
                     <i class="fa fa-gear"></i>
 
-                    <span style="background-color:#5c5959;color: white">Settings</span>
+                    <span style="background-color:#0131B4;color: white">Settings</span>
 
                 </a>
-                <ul class="treeview-menu" style="background-color:#5c5959;color: white">
+                <ul class="treeview-menu" style="background-color:#0131B4;color: white">
                     <li><a href="{% url 'Settings' %}" ><i class="fa fa-circle-o"></i>Profile Settings</a></li>
 
                     <li><a href="{% url 'setting_security' %}"><i class="fa fa-circle-o"></i> Security Settings</a></li>
@@ -167,35 +152,6 @@
                 </ul>
 
             </li>
-
-
-            {#            <li class="active treeview">#}
-            {#              <a href="#">#}
-            {#                <i class="fa fa-fw fa-th-large"></i>  <span>My Applications</span> </i>#}
-            {#              </a>#}
-            {##}
-            {#            </li>#}
-
-            {#                <li class="active treeview">#}
-            {#              <a href="#">#}
-            {#                <i class="fa fa-fw fa-umbrella" ></i> <span>BC Action Tracker</span> </i>#}
-            {#              </a>#}
-            {##}
-            {#            </li>#}
-            {#            <li class="active treeview">#}
-            {#              <a href="#">#}
-            {#                <i class="fa fa-dashboard"></i> <span>BIA</span> </i>#}
-            {#              </a>#}
-            {##}
-            {#            </li>#}
-            {##}
-            {#            <li class="active treeview">#}
-            {#              <a href="#">#}
-            {#                <i class="fa fas fa-globe"></i> <span>Communication Plan</span> </i>#}
-            {#              </a>#}
-            {##}
-            {#            </li>#}
-
 
         </ul>
     </section>

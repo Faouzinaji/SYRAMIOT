@@ -17,7 +17,7 @@
     bottom: -4px;
     left: 0;
     height: 15px;
-    width: 75px;
+    width: 90px;
     background: rgb(255, 255, 255) !important;
 }
 .w-100{
@@ -28,9 +28,24 @@
   width: 18px; 
   text-align: center; 
   border-radius: 2px; 
-  color: rgb(4, 127, 143); 
+  color: #0131B4; 
   font-size: 18px;
 }
+
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
+  color: #0131B4;
+}
+.active{
+  font-weight: 900 !important;
+}
+.nav>li>a:focus, .nav>li>a:hover {
+  color: #1246d3;
+  background: #0131b436 !important;
+}
+
+
+
 ul li a{
   font-size: 18px;
 }
@@ -74,6 +89,10 @@ form {
     page-break-before: always;
   }
 }
+.goog-logo-link {
+    display:none !important;
+} 
+    
 </style>
   <body class="skin-blue">
     <div class="wrapper">
@@ -96,7 +115,7 @@ form {
                 <i class="fa fa-calendar icone" aria-hidden="true"></i> 
                 Daily</a>
             </li>
-            <li role="presentation" style="width: 25%;"><a href="#"><i class="fa fa-area-chart icone" aria-hidden="true"></i> Predictive maintenance</a></li>
+            <li role="presentation" style="width: 25%;"><a class="overview" href="#"><i class="fa fa-area-chart icone" aria-hidden="true"></i> Predictive maintenance</a></li>
           </ul>
         </section>
 
@@ -105,7 +124,7 @@ form {
           <!-- Small boxes (Stat box) -->
           <form method="get">
             <div class="row" style="padding-bottom: 15px;">
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <label for="device_id">Device</label>
                 <select id="device_id" name="device_id"  class="form-control" required>
                   {% if not all_devices %}
@@ -116,45 +135,14 @@ form {
                   {% endfor %}
                 </select>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <label for="date">Date</label>
                 <input id="date" class="form-control" type="date"  name="date" placeholder="Enter date" >
-               
               </div>
-              <div class="col-md-3">
-                <label for="hours">Hours</label>
-                <select id="hours" name="hours"  class="form-control">
-                  <option value="">------------</option>
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                  <option value="6">6</option>
-                  <option value="7">7</option>
-                  <option value="8">8</option>
-                  <option value="9">9</option>
-                  <option value="10">10</option>
-                  <option value="11">11</option>
-                  <option value="12">12</option>
-                  <option value="13">13</option>
-                  <option value="14">14</option>
-                  <option value="15">15</option>
-                  <option value="16">16</option>
-                  <option value="17">17</option>
-                  <option value="18">18</option>
-                  <option value="19">19</option>
-                  <option value="20">20</option>
-                  <option value="21">21</option>
-                  <option value="22">22</option>
-                  <option value="23">23</option>
-                </select>
-              </div>
-              <div class="col-md-3" style="margin-top: 25px;">
+              <div class="col-md-4" style="margin-top: 25px;">
                 <div class="btn-group" role="group" aria-label="Basic example" style="width: 100%;">
-                  <button type="submit" class="btn btn-primary" style="width: 50%;">Search</button>
-                  <button type="button" onclick="window.print();return false;"  style="width: 50%;" class="btn btn-info">Print</button>
+                  <button type="submit" class="btn" style="width: 50%; background: #0131B4; color: #f9f9f9;"><i class="fa fa-search" aria-hidden="true"></i> Search</button>
+                  <button type="button" onclick="window.print();return false;"  style="width: 50%; background: #1371D0; color: #f9f9f9;" class="btn"><i class="fa fa-print" aria-hidden="true"></i> Print</button>
                 </div>
               </div>
             </div>
@@ -235,91 +223,9 @@ form {
                 </div>
               </div>
             </div><!-- ./col -->
-            <div class="col-lg-3 col-xs-6">
-              <!-- small box -->
-              <div class="small-box shadow bg-1">
-                <div class="inner text-center">
-                  <p style="font-size: 20px; margin-bottom: 0; font-weight: 600;">{{maximun}}</p>
-                  <h3 style="font-size: 12px;">Max Production</h3>
-                </div>
-              </div>
-            </div><!-- ./col -->
-          <hr>
-          
-          <table class="table table-borderd well well-lg" style="background: #fff;">
-            <thead>
-              <tr>
-                <th>SL</th>
-                <th>Device Password</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Hours</th>
-                <th>Count Input</th>
-                <th>Count Output</th>
-                <th>State</th>
-                <th>Cadence</th>
-                <th>Stop</th>
-                <th>MTBF</th>
-                <th>MTTR</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for obj in iot_device %}
-              <tr>
-                <td>{% if obj.serial_no %}{{ obj.serial_no }}{% else %}-{% endif %}</td>
-                <td>{% if obj.device_password %}{{ obj.device_password }}{% else %}-{% endif %}</td>
-                <td>{% if obj.date %}{{ obj.date }}{% else %}-{% endif %}</td>
-                <td>{% if obj.time %}{{ obj.time }}{% else %}-{% endif %}</td>
-                <td>{% if obj.hours %}{{ obj.hours }}{% else %}-{% endif %}</td>
-                <td>{% if obj.count_input %}{{ obj.count_input }}{% else %}-{% endif %}</td>
-                <td>{% if obj.count_output %}{{ obj.count_output }}{% else %}-{% endif %}</td>
-                <td>{% if obj.state %}{{ obj.state }}{% else %}-{% endif %}</td>
-                <td>{% if obj.cadence %}{{ obj.cadence }}{% else %}-{% endif %}</td>
-                <td>{% if obj.stop %}{{ obj.stop }}{% else %}-{% endif %}</td>
-                <td>{% if obj.mtbf %}{{ obj.mtbf }}{% else %}-{% endif %}</td>
-                <td>{% if obj.mttr %}{{ obj.mttr }}{% else %}-{% endif %}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          <!--Pagination-->
-          <div class="container p-4">
-            <div class="pagination justify-content-center">
-                <span class="step-links">
-                  {% if iot_device.has_previous %}
-                      <a href="?page=1">&laquo; first</a>
-                      <a href="?page={{ iot_device.previous_page_number }}">previous</a>
-                  {% endif %}
-
-                    <span class="current">
-                        Page {{ iot_device.number }} of {{ iot_device.paginator.num_pages }}
-                    </span>
-
-                  {% if iot_device.has_next %}
-                      <a href="?page={{ iot_device.next_page_number }}">next</a>
-                      <a href="?page={{ iot_device.paginator.num_pages }}">last &raquo;</a>
-                  {% endif %}
-                </span>
-                </div>
-            </div>
-          <!--end of Pagination-->
-      
       <hr>
           <!-- Main row -->
           <div class="row">
-            <!-- Left col -->
-            <section class="col-lg-12 connectedSortable">
-              <canvas id="myChart" style="width:100%;height: 300px;"></canvas><script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
-
-            </section><!-- /.Left col -->
-            <section class="col-lg-12 connectedSortable">
-              <canvas id="myChart2" style="width:100%;height: 300px;"></canvas><script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
-
-            </section><!-- /.Left col -->
-
-            <section class="col-lg-12 connectedSortable">
-              <canvas id="myChart12" style="width:100%;height: 300px;"></canvas><script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
-
             </section><!-- /.Left col -->
 
             <section class="col-lg-12 connectedSortable mt-5">
@@ -435,8 +341,8 @@ form {
       $(".overview").click(function () {
         Swal.fire({
         icon: 'info',
-        title: 'Oops...',
-        text: 'Coming soon!',
+        title: 'Coming soon!',
+        text: 'This feature Publish very soon',
       })
       });
     });
@@ -641,140 +547,6 @@ form {
 
     }
     </script>  
-
-
-  <script>
-    var xValues = {{ su_date_label|safe }};
-    
-    
-    new Chart("myChart", {
-      type: "line",
-      data: {
-        labels: xValues,
-        datasets: [{
-          fill: false,
-          lineTension: 0,
-          backgroundColor: "#fc0087",
-          borderColor: "#fc0087",
-          data: {{ su_date_value|safe }},
-          label:"Scrape-Unit"
-        },
-        {
-          fill: false,
-          lineTension: 0,
-          backgroundColor: "#62929E",
-          borderColor: "#62929E",
-          data: {{ su_up|safe }},
-           label:"Unit-Produced"
-        }]
-      },
-      options: {
-        legend: {display: false},
-        title: {
-                        display: true,
-                        text: 'Scrape-Units-Per-Hour'
-                    },
-                 
-                  scales: {
-            xAxes: [{
-                barThickness: 18,  // number (pixels) or 'flex'
-                maxBarThickness:20 // number (pixels)
-            }]
-        }
-     
-      }
-    });
-    </script>
-
-<script>
-  var xValues = {{ oc_label|safe }};
-  var yvalues = {{ oc|safe }}
-  console.log(xValues);
-  console.log({{ oc|safe }});
-  
-  
-  new Chart("myChart12", {
-    type: "bar",
-    data: {
-      labels: xValues,
-      datasets: [{
-        fill: false,
-        lineTension: 0,
-        backgroundColor: "#62929E",
-        borderColor: "#62929E",
-        data:yvalues
-      }]
-    },
-    options: {
-      legend: {display: false},
-      title: {
-                      display: true,
-                      text: 'State Occurance'
-                  },
-                  scales: {
-            xAxes: [{
-                barThickness: 18,  // number (pixels) or 'flex'
-                maxBarThickness:20 // number (pixels)
-            }]
-        }
-   
-    }
-  });
-  </script>
-<script>
- var xValues = {{ su_date_label|safe }};
-
-new Chart("myChart2", {
-  type: "line",
-  data: {
-    labels: xValues,
-    datasets: [
-      
-      {
-      fill: false,
-      lineTension: 0,
-      backgroundColor: "#5c5959",
-          borderColor: "#5c5959",
-      data: {{ ar_value|safe }},
-      label:"Availability-Rate"
-    
-    }, 
-      {
-      fill: false,
-      lineTension: 0,
-      backgroundColor: "#62929E",
-          borderColor: "#62929E",
-      data: {{ pr_value|safe }},
-      label:"Performance-Rate"
-    },
-    {
-      fill: false,
-      lineTension: 0,
-      backgroundColor: "#fc0087",
-          borderColor: "#fc0087",
-      data: {{ qr_value|safe }},
-      label:"Quality-Rate"
-    }, {
-      fill: false,
-      lineTension: 0,
-      backgroundColor: "#fa0c00",
-          borderColor: "#fa0c00",
-      data: {{ oee_value|safe }},
-      label:"OEE-Rate"
-    }
-  
-  ]
-  },
-   
-  options: {
-    legend: {display: true},
-        title: {
-                        display: true,
-                        text: 'Availability-Performance-Quality-OEE-rate-Per-Hour'
-                    }
-  }
-});
-  </script>
 
 {% endblock %}
 
