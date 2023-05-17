@@ -18,8 +18,7 @@
       <div class="login-box-body">
         <p class="login-box-msg"><a href="#"><img src="{% static 'dist/img/Sans titre.png' %}" width="40%" height="40%"  alt="" /></a>
             <br>
-            <br>
-            Sign in to start your session with us <br> <strong>SYRAM</strong></p>
+            
 
           <h5 style="text-decoration:#00a65a">{% include '_messages.html' %}</h5>
         <form action="{% url 'Login' %}" method="post">
@@ -35,10 +34,10 @@
           <div class="row">
        <!-- /.col -->
             <div class="col-md-6">
-              <button type="submit" class="btn btn-primary btn-block btn-flat">Login</button>
+              <button type="submit" class="btn btn-custome btn-block btn-flat">Login</button>
             </div><!-- /.col -->
             <div class="col-md-6">
-              <a href="{% url 'Sign_up' %}" class="btn btn-primary btn-block btn-flat">Create your Account</a>
+              <a href="{% url 'Sign_up' %}" class="btn btn-custome btn-block btn-flat">Create your Account</a>
             </div><!-- /.col -->
           </div>
             <br>
