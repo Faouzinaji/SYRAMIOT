@@ -88,6 +88,9 @@ form {
   #Units, #myChart12, #myChart, #myChart2, #myChart12, #rate, #mixed, #stop {
     page-break-before: always;
   }
+  @page { 
+        size: landscape;
+    }
 }
 .goog-logo-link {
     display:none !important;
@@ -104,7 +107,8 @@ form {
         <!-- Content Header (Page header) -->
         <section class="content-header">
           <ul class="nav nav-tabs">
-            <li role="presentation" style="width: 25%;"><a class="overview" href="#"><i class="fa fa-eye icone" aria-hidden="true"></i> Overview</a></li>
+            <li role="presentation" style="width: 25%;">
+              <a href="{% url 'overview' %}"><i class="fa fa-eye icone" aria-hidden="true"></i> Overview</a></li>
             <li role="presentation" style="width: 25%;" class="active">
               <a href="#">
                 <i class="fa fa-clock-o icone" aria-hidden="true"></i> 
@@ -299,12 +303,22 @@ form {
                 <div class="col-md-12">
                   <table style="width: 100%; margin: 0 auto;">
                     <thead>
-                        {% for label, value in data_in_min.items %}
                         <tr>
-                        <th>{{ label }}</th>
-                        <th>{% for data in value %} {{ data|mix_data }}, {% endfor %}</th>
-                      </tr>
-                        {% endfor %}
+                          <th>Date</th>
+                          {% for label, value in data_in_min.items %}
+                            <td>{{ label }}</td>
+                          {% endfor %}
+                        </tr>
+                        <tr>
+                          <td>2022</td>
+                          {% for label, value in data_in_min.items %}
+                          <td>
+                              {% for data in value %}
+                                {{ data|mix_data }}
+                              {% endfor %}
+                          </td>
+                          {% endfor %}
+                        </tr>
                     </thead>
                     <tbody>
                       
