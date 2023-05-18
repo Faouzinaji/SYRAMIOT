@@ -8,7 +8,8 @@ from Home.API import (
 
 urlpatterns = [
     path("", views.dashboard, name="dashboard"),
-    path("date", views.dashboard_date, name="dashboard_date"),
+    path("date/", views.dashboard_date, name="dashboard_date"),
+    path("overview/", views.Overview.as_view(), name="overview"),
     path("Settings", views.Setting, name="Settings"),
     path("setting_security", views.setting_security, name="setting_security"),
     path("active_devices", views.active_devices, name="active_devices"),
