@@ -1,13 +1,13 @@
 {% load static %}
 <header class="main-header">
-    <a href="{% url 'dashboard' %}" class="logo" style="background-color:#62929E; ">
+    <a href="{% url 'dashboard' %}" class="logo" style="background-color:#0131B4; ">
         <img src="{% static 'dist/img/logo.png' %}" class="img-circle" alt=""/>
     </a>
     <!-- Header Navbar: style can be found in header.less -->
-    {#      <a href="{% url 'dashboard' %}" class="logo"><img style="background-color:#62929E; " src="{% static '/dist/img/logo.jpeg' %}" width="225px" height="170px"  alt="" /></a>#}
+    {#      <a href="{% url 'dashboard' %}" class="logo"><img style="background-color:#0131B4; " src="{% static '/dist/img/logo.jpeg' %}" width="225px" height="170px"  alt="" /></a>#}
 
 
-    <nav class="navbar navbar-static-top" role="navigation" style="background-color:#62929E;">
+    <nav class="navbar navbar-static-top" role="navigation" style="background-color:#0131B4;">
 
        
         <!-- Sidebar toggle button-->
@@ -42,9 +42,9 @@
 
 </span>
                     </a>
-                    <ul class="dropdown-menu"  style="background-color:#62929E; ">
+                    <ul class="dropdown-menu"  style="background-color:#0131B4; ">
                         <!-- User image -->
-                        <li class="user-header" style="background-color:#62929E; ">
+                        <li class="user-header" style="background-color:#0131B4; ">
                             {% if user_profile.picture %}
                                 <img src="{{ user_profile.picture.url }}" class="user-image" alt="User Image"/>
                             
