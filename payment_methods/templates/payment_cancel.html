@@ -4,25 +4,61 @@
     Checkout
 {% endblock %}
 {% block content %}
+<style>
+    .icone {
+        text-align: center;
+        margin-top: 25px;
+    }
+    .icone i{
+        padding: 25px 45px;
+        background: red;
+        color: #fff;
+        border-radius: 50%;
+        font-size: 60px;
+    }
+    .wf{
+        width: 60%; 
+        margin:0 auto; 
+        padding: 35px;
+        background: #cacaca;
+    }
+    .btn-custome{
+        background: #0131B4;
+        padding: 8px 10px;
+        color: #fff;
+    }
+    .btn-custome:hover{
+        background: #0131B4;
+        padding: 8px 10px;
+        color: #fff;
+    }
+</style>
 <body>
-
 <!-- Spinner Start -->
     <body class="skin-blue">
-    <div class="wrapper">
+    <div class="wrapper" style=" margin-top: 25px;">
         <div class="content-wrapper">
-
-             <section class="container my-4" style="background-color: white">
-
-<h3>Sorry! Your payment could not proceed successfuly.Please try again</h3>
-             </section>
-
+            <div class="wf">
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="icone">
+                            <i class="fa fa-exclamation" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-10">
+                        <h2 style="margin-top: 30px;">Payment Failed</h2>
+                        <h3 style="margin: 15px 0">Your payment was not successful. Please try again later</h3>
+                        <h4 style="margin-top: 40px;">Seggestion</h4>
+                        <p style="margin-bottom: 25px;">We think there is a network or internal problem now. Try to pay again after some time. thank you</p>
+                        <a href="" class="btn btn-custome">View your device page</a>
+                        <a href="" class="btn btn-custome">View Payment History</a>
+                        <a href="" class="btn btn-custome">Return to home page</a>
+                        <a href="" class="btn btn-custome">Make payment again</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-
-
-
-
   </body>
 
 {% endblock %}
