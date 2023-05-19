@@ -26,6 +26,7 @@
 										<th>Serial Numbers</th>
 										<th>Status</th>
 										<th>Price</th>
+										<th>Vat</th>
 									</tr>
                                     {% for obj in device %}
 									<tr>
@@ -33,6 +34,7 @@
 										<td>{{ obj.serial_no }}</td>
 										<td>{{ obj.status }}</td>
 										<td id="{{ obj.pk }}">${{ price.price }}</td>
+										<td>$ 20%</td>
 									</tr>
 									{% endfor %}
 								</table>
@@ -44,14 +46,24 @@
 				</table>
 				
 				<div class="row"  style="margin-left: 5px;">
-					<div class="col-md-6">
-						<span style=" font-size: 20px;">Total Amount : </span>
-						<span  style=" font-size: 20px;"> $ {{no_of_items}}</span>
+					<div class="col-md-12">
+						<table class="table table-bordered table-striped">
+							<tr>
+								<td>Amount</td>
+								<td>Total Vat</td>
+								<td>Total Amount</td>
+							</tr>
+							<tr>
+								<td>$ {{ no_of_items }}</td>
+								<td>$ {{ vat }}</td>
+								<td>$ {{ total_amount }}</td>
+							</tr>
+						</table>
 					</div>
 					
 					</div>
 					<br>
-				<form method="post" action="{% url 'checkout_session' no_of_items %}" style="margin-left: 20px;">
+				<form method="post" action="{% url 'checkout_session' total_amount %}" style="margin-left: 20px;">
 					{% csrf_token %}
 					<input type="submit" value="Pay with stripe" class="btn btn-primary mt-2"/>
 				</form>
