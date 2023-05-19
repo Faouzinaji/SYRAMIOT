@@ -1,8 +1,11 @@
 import stripe
-from django.shortcuts import render, redirect, HttpResponse
-from SRAM import settings
-from dateutil.relativedelta import relativedelta
 import datetime
+from dateutil.relativedelta import relativedelta
+from django.shortcuts import render, redirect,HttpResponse
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
+from django.views.generic import View
 from .models import *
 from Home.models import APIKey
 
@@ -17,11 +20,13 @@ def checkout(request):
         total_amount = 0
         for obj in device:
             total_amount += price.price
-        print(sr_no_devices, "*" * 100)
         request.session['sr_no_devices'] = sr_no_devices
+        vat = (total_amount * 20) / 100
         context = {
-            'sr_no_devices': sr_no_devices, 'price': price,
-            'no_of_items': total_amount, 'device': device
+            'sr_no_devices': sr_no_devices, 'price': price, "vat": vat,
+            'no_of_items': total_amount, 'device': device,
+            "total_amount": int(total_amount + vat)
+
         }
         return render(request, 'checkout.html', context)
 
@@ -34,9 +39,11 @@ def checkout_page(request):
     total_amount = 0
     for obj in device:
         total_amount += price.price
+    vat = (total_amount * 20) / 100
     context = {
-        'sr_no_devices': sr_no_devices, 'price': price,
-        'no_of_items': total_amount, 'device': device
+        'sr_no_devices': sr_no_devices, 'price': price, "vat": vat,
+        'no_of_items': total_amount, 'device': device,
+        "total_amount": int(total_amount + vat)
     }
     return render(request, 'checkout.html', context)
 
@@ -179,14 +186,30 @@ def stripe_payment_success(request):
     try:
         session = stripe.checkout.Session.retrieve(request.GET['session_id'])
         plan_id = session.client_reference_id
-        plan = Price_plan.objects.all().last()
+        plan = Price_plan.objects.get(plan_choice="certificate")
         user = request.user
         sr_no_devices = request.session.get('sr_no_devices')
+
+        all_email = []
+        total_device = Devices.objects.filter(device_id__in=sr_no_devices).count()
+        invoice = Invoice.objects.create(user=user)
+        price = int(plan.price) * total_device
+        vat = price * (20 * total_device) / (100 * total_device)
+        _total_amount = price + vat
+        invoice.amount = price
+        invoice.vat = vat
+        invoice.total_amount = _total_amount
+        invoice.save()
+
         for  i in sr_no_devices:
-             obj_device = Devices.objects.get(device_id=i)
-             obj_device.status = "Active"
-             obj_device.save()
-             Subscriber.objects.create(
+            obj_device = Devices.objects.get(device_id=i)
+            obj_device.status = "Active"
+            obj_device.inv_id = invoice
+            if obj_device.email not in all_email:
+                all_email.append(obj_device.email)
+            obj_device.save()
+
+            Subscriber.objects.create(
                 plan=plan,
                 user=user,
                 serial_no=obj_device,
@@ -195,16 +218,45 @@ def stripe_payment_success(request):
                 subsciption_from=datetime.date.today(),
                 subsciption_to=datetime.date.today() + relativedelta(years=1)
 
-             )
-        return render(request, 'payment_success.html')
+            )
+
+        obj_device = Devices.objects.filter(device_id__in=sr_no_devices)
+        context = {
+            "obj_device": obj_device, "total_plan": plan.price * obj_device.count(),
+            "plan": plan
+        }
+        
+        # current_site = get_current_site(request)
+        # mail_subject = f'Invoice'
+        # message = render_to_string('invoice.html', {
+        #     'domain': current_site.domain,
+        #     "obj_device": obj_device, "total_plan": plan.price * obj_device.count(),
+        #     "plan": plan
+        # })
+        # email = EmailMultiAlternatives(
+        #     mail_subject, message, to=all_email
+        # )
+        # email.attach_alternative(message, "text/html")
+        # email.send()
+        # print("Mail Sent Success =====================")
+        
+
+        return render(request, 'payment_success.html', context)
     except Exception as e:
         print('exception in stripe success is:',e)
-        return render(request, 'payment_cancel.html')
+        plan = Price_plan.objects.get(plan_choice="certificate")
+        inv = Invoice.objects.filter(user=request.user).last()
+        context = {
+            "plan": plan, "inv": inv
+        }
+        return render(request, 'payment_success.html', context)
 
 
-
-
-
+class PaymentHistory(View):
+    def get(self, request):
+        invoice = Invoice.objects.filter(user=request.user)
+        return render(request, "history.html", {"invoice": invoice})
+        
 
 
 
