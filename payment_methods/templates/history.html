@@ -1,0 +1,96 @@
+{% extends 'base2.html' %}
+{% load static %}
+{% block title %}
+    Payment History
+{% endblock %}
+{% block content %}
+<style>
+    .icone {
+        text-align: center;
+        margin-top: 25px;
+    }
+    .icone i{
+        padding: 25px 45px;
+        background: red;
+        color: #fff;
+        border-radius: 50%;
+        font-size: 60px;
+    }
+    .wf{
+        width: 60%; 
+        margin:0 auto; 
+        padding: 35px;
+        background: #cacaca;
+    }
+    .btn-custome{
+        background: #0131B4;
+        padding: 8px 10px;
+        color: #fff;
+    }
+    .btn-custome:hover{
+        background: #0131B4;
+        padding: 8px 10px;
+        color: #fff;
+    }
+</style>
+<body>
+<!-- Spinner Start -->
+    <body class="skin-blue">
+    <div class="wrapper" style=" margin-top: 25px;">
+        <div class="content-wrapper">
+            <div class="row">
+                <div class="col-md-12"><h2 style="padding: 10px;">Your Payment History</h2></div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box-body">
+                        <div id="apptable">
+                            <table id="example1" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>SL</th>
+                                        <th>INV ID</th>
+                                        <th>Designation</th>
+                                        <th>Status</th>
+                                        <th>Start Date</th>
+                                        <th>End Date</th>
+                                        <th>Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for obj in invoice %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ obj.invoice_id }}</td>
+                                        <td>{{ obj.inv_id.all }}</td>
+                                        <td>{{ obj.serial_no.status }}</td>
+                                        <td>{{ obj.ssubsciption_from }}</td>
+                                        <td>{{ obj.subsciption_to }}</td>
+                                        <td>{{ obj.price }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(function () {
+            $("#example1").dataTable({
+                "bPaginate": true,
+                "bLengthChange": true,
+                "bFilter": false,
+                "bSort": true,
+                "bInfo": true,
+                "bAutoWidth": true,
+            });
+        });
+    </script>
+  </body>
+
+{% endblock %}
+
