@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
+    <style>
+        .top, .body{
+            width: 100%;
+            margin-left: 230px;
+            padding: 20px;
+        }
+        .top-left .image img{
+            width: 100px;
+        }
+        ._row{
+            width: 90%;
+        }
+        ._col-md-4{
+            width: 25% !important;
+            float: left;
+        }
+        .main-footer{
+            display: none;
+        }
+        .body{
+            position: relative;
+        }
+        .total{
+            position: absolute;
+            right: 31%;
+        }
+    </style>
+</head>
+<body>
+    <body class="skin-blue" style="min-height: 100%;">
+        <div class="top">
+            <div class="top-left">
+                <div class="image">
+                    <img src="{% static 'dist/img/Sans titre.png' %}" alt="">
+                </div>
+                <h4>SYRAM</h4>
+                <span>72 Route de la croix Hepich</span> <br>
+                <span>57000 Thionville</span> <br>
+                <b>{{ request.user }}</b>
+            </div>
+        </div>
+        <div class="body">
+            <table class="table">
+                <tr>
+                    <th>Device ID</th>
+                    <th>Serial NO</th>
+                    <th>Designation</th>
+                    <th>Price</th>
+                    <th>Vat</th>
+                    <th>Total Amount</th>
+                </tr>
+                {% for obj in inv.inv_id.all %}
+                <tr>
+                    <td>{{ obj.device_id }}</td>
+                    <td>{{ obj.serial_no }}</td>
+                    <td>{{ obj.designation }}</td>
+                    <td>$ {{ plan.price }}</td>
+                    <td>$ {{ plan.price }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </body>
+</body>
+</html>
