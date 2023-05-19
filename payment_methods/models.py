@@ -1,12 +1,27 @@
+import datetime
 from django.db import models
-
-# Create your models here.
-from django.db import models
-# from django.contrib.auth.models import User
+from dateutil.relativedelta import relativedelta
 from authentication.models import User
 from Home.models import *
-
 from authentication.models import *
+
+
+def _get_inv_sl(num):
+    today = datetime.date.today()
+    year = today.strftime("%Y")
+    num = num + 1
+    if num > 999999:
+        return f"Invoice N° {year}-{num}"
+    if num > 99999:
+        return f"Invoice N° {year}-0{num}"
+    if num > 9999:
+        return f"Invoice N° {year}-00{num}"
+    if num > 999:
+        return f"Invoice N° {year}-000{num}"
+    if num > 99:
+        return f"Invoice N° {year}-0000{num}"
+    if num > 0:
+        return f"Invoice N° {year}-00000{num}"
 
 
 PLAN_CHOICES = (
@@ -39,9 +54,13 @@ class Price_plan_feature(models.Model):
 
 
 class Subscriber(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True,verbose_name='User')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, null=True,verbose_name='User'
+    )
     plan = models.ForeignKey(Price_plan, on_delete=models.CASCADE, null=True)
-    serial_no = models.ForeignKey(Devices, on_delete=models.CASCADE, null=True,verbose_name='Serial No.')
+    serial_no = models.ForeignKey(
+        Devices, on_delete=models.CASCADE, null=True, verbose_name='Serial No.'
+    )
     price = models.CharField(max_length=50)
     subsciption_from = models.DateField(verbose_name='Subscription From')
     subsciption_to = models.DateField(verbose_name='Subscription To')
@@ -74,3 +93,26 @@ class Order_devices(models.Model):
 
     class Meta:
         verbose_name = 'Order-Devices-Details'
+
+
+class Invoice(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    invoice_id = models.CharField(max_length=100, null=True, blank=True)
+    name = models.CharField(max_length=255, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    start_date = models.DateField(auto_now=True)
+    end_date = models.DateField(null=True, blank=True)
+    amount = models.CharField(max_length=25, null=True, blank=True)
+    vat = models.CharField(max_length=25, null=True, blank=True)
+    total_amount = models.CharField(max_length=25, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        invoice_id = self.invoice_id
+        if not invoice_id:
+            total = Invoice.objects.all().count()
+            inv = _get_inv_sl(total)
+            self.invoice_id = inv
+        if not self.end_date:
+            self.end_date = datetime.date.today() + relativedelta(years=1)
+        super(Invoice, self).save(*args, **kwargs)
