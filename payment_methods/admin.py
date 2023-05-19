@@ -21,16 +21,18 @@ admin.site.register(Price_plan_feature,Price_plan_featureAdmin)
 
 
 
-# class SubscriberAdmin(admin.ModelAdmin):
-
-#     list_display = ('user','serial_no','plan','price','subsciption_from','subsciption_to','status','created_at')
-
-admin.site.register(Subscriber)
-
-
 class OrderdevicesAdmin(admin.ModelAdmin):
 
     list_display = ('id','user_name','email_address','ph_no','delivery_address','number_of_devices','amount','status','created_at')
 
 admin.site.register(Order_devices,OrderdevicesAdmin)
+
+@admin.register(Invoice)
+class InvoiceAdmin(admin.ModelAdmin):
+    list_display = ('user', 'invoice_id', 'name')
+
+
+@admin.register(Subscriber)
+class InvoiceAdmin(admin.ModelAdmin):
+    list_display = ('user', 'plan', 'price')
 
