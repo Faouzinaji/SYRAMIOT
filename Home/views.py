@@ -400,10 +400,12 @@ class Overview(View):
         scraped_list = []
         oee_rate = []
         for data in all_devices:
+            print(data.serial_no, "*" * 10)
             state = API_Device_data.objects.filter(
                 serial_no=data.serial_no,
                 device_password=data.device_password,
             )
+            print(state, "#" * 10)
             last_state_list.append(state.last().state)
             production_list.append(state.last().count_input)
             if not state.last().count_input:
