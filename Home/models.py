@@ -1,10 +1,15 @@
 from django.db import models
 from authentication.models import *
+# from payment_methods.models import Price_plan
 
 # Create your models here.
 
 class Devices(models.Model):
     device_id = models.AutoField(primary_key=True, unique=True)
+    inv_id = models.ForeignKey(
+        "payment_methods.Invoice", on_delete=models.CASCADE, null=True, blank=True,
+        related_name="inv_id"
+    )
     serial_no = models.PositiveIntegerField( blank=True, null=True, verbose_name='Serial No')
     designation = models.CharField(max_length=2500, blank=True, null=True, verbose_name='Designation')
     device_password = models.CharField(max_length=2500, blank=True, null=True, verbose_name='Password')
@@ -19,6 +24,18 @@ class Devices(models.Model):
 
     class Meta:
         verbose_name = 'My Device'
+    
+    # @property
+    # def get_vat(self):
+    #     price = self.subscriber_set.all().last()
+    #     print(int(price.price) * 20/ 100, "*" * 10, price.price)
+    #     return int(price.price) * 20 / 100
+
+    # @property
+    # def total(self):
+    #     price = self.subscriber_set.all().last()
+    #     # print(int(price.price), int(self.get_vat), "*" * 100)
+    #     return int(price.price) + int(self.get_vat)
 
 
 class API_Device_data(models.Model):
