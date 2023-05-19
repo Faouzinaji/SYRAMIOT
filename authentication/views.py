@@ -27,41 +27,8 @@ from django.utils.html import strip_tags
 
 def send_email_otp(request, user, user_email, otp):
     pass
-    # current_site = get_current_site(request)
-    # mail_subject = 'Verification Code'
-    # mail_content = '1234'
-    # message = render_to_string('acc_active_email.html', {
-    #     'user': user,
-    #     'mail_content': mail_content,
-    #     'domain': current_site.domain,
-    # })
-    # all_email = ['adnanrafique340@gmail.com']
-    # to_email = user_email
-    # all_email.append(to_email)
-    # email = EmailMultiAlternatives(
-    #     mail_subject, message, to=all_email
-    # )
-    # email.attach_alternative(message, "text/html")
-    # email.send()
-    # print("mail send successfully")
 
-
-
-    # subject = 'Verification Code'
-    # html_content = render_to_string('otp_email_template.html', {
-    #     'first_name': user.owner.first_name,
-    #     'last_name': user.owner.last_name,
-    #     'otp':otp
-    # })
-    # text_content = strip_tags(html_content)
-
-    # msg = EmailMultiAlternatives(
-    #     subject, text_content, 'adnanrafique340@gmail.com', user_email
-    # )
-    # msg.attach_alternative(html_content, "text/html")
-    # msg.send()
-    # return None
-
+ 
 def Login(request):
     ''' This is the login method '''
     if request.method == 'POST':
