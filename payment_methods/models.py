@@ -41,6 +41,16 @@ class Price_plan(models.Model):
         return self.title
     class Meta:
         verbose_name = 'Price Plan'
+    
+    @property
+    def get_vat(self):
+        price = self.subscriber_set.all().last()
+        return int(price.price) * 20 / 100
+
+    @property
+    def total(self):
+        price = self.subscriber_set.all().last()
+        return int(price.price) + int(self.get_vat)
 
 
 class Price_plan_feature(models.Model):
@@ -85,7 +95,6 @@ class Order_devices(models.Model):
     zip_code = models.CharField(max_length=2500, blank=True, null=True, verbose_name='Zip Code')
     country = models.CharField(max_length=2500, blank=True, null=True, verbose_name='Country')
     address_verified = models.CharField(max_length=2500, blank=True, null=True, verbose_name='Address Verified by Google?')
-
     number_of_devices = models.CharField(max_length=2500, blank=True, null=True, verbose_name='Number Of Devices')
     amount = models.BigIntegerField( blank=True, null=True, verbose_name='Total Paid Amount')
     status =  models.CharField(max_length=50,null=True)
