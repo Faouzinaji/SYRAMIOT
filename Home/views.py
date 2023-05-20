@@ -400,73 +400,68 @@ class Overview(View):
         scraped_list = []
         oee_rate = []
         for data in all_devices:
-            print(data.serial_no, "*" * 10)
             state = API_Device_data.objects.filter(
                 serial_no=data.serial_no,
                 device_password=data.device_password,
             )
-            print(state, "#" * 10)
-            last_state_list.append(state.last().state)
-            production_list.append(state.last().count_input)
-            if not state.last().count_input:
-                _input = 0
-            else:
-                _input = int(state.last().count_input)
-            if not state.last().count_output:
-                _output = 0
-            else:
-                _output = int(state.last().count_output)
-            scraped_list.append(_input - _output)
-            total_state = 0
-            total_state_off = 0
-            total_state_production = 0
-            total_output = 0
-            total_cadence = 0
-            for obj in state:
-                total_state += 1
-                if obj.state == "PRODUCTION":
-                    total_state_production += 1
-                if obj.state == "OFF":
-                    total_state_off += 1
-                
-                if obj.count_output:
-                    total_output += float(obj.count_output)
-                if obj.cadence:
+            if state:
+                last_state_list.append(state.last().state)
+                production_list.append(state.last().count_input)
+                if not state.last().count_input:
+                    _input = 0
+                else:
+                    _input = int(state.last().count_input)
+                if not state.last().count_output:
+                    _output = 0
+                else:
+                    _output = int(state.last().count_output)
+                scraped_list.append(_input - _output)
+                total_state = 0
+                total_state_off = 0
+                total_state_production = 0
+                total_output = 0
+                total_cadence = 0
+                for obj in state:
+                    total_state += 1
+                    if obj.state == "PRODUCTION":
+                        total_state_production += 1
+                    if obj.state == "OFF":
+                        total_state_off += 1
+                    
+                    if obj.count_output:
+                        total_output += float(obj.count_output)
+                    if obj.cadence:
+                        try:
+                            total_cadence += float(obj.cadence)
+                        except Exception as e:
+                            total_cadence += float(1)
+                    
+                    # Availability rate
                     try:
-                        total_cadence += float(obj.cadence)
+                        calculation_data = (
+                            (total_state - total_state_off - total_state_production) / (total_state - total_state_off)
+                        )
                     except Exception as e:
-                        total_cadence += float(1)
-                
-                # Availability rate
-                try:
-                    calculation_data = (
-                        (total_state - total_state_off - total_state_production) / (total_state - total_state_off)
-                    )
-                except Exception as e:
-                    print(e)
-                    calculation_data = 0
-                
-                # Quality rate
-                _input = obj.count_input
-                _output = obj.count_output
-                try:
-                    i_o_data = (float(_output) / float(_input))
-                except Exception as e:
-                    i_o_data = float(1)
-                
-                # Performance rate
-                try:
-                    performance_data = (total_output / total_cadence)
-                except Exception as e:
-                    performance_data = float(1)
+                        print(e)
+                        calculation_data = 0
+                    
+                    # Quality rate
+                    _input = obj.count_input
+                    _output = obj.count_output
+                    try:
+                        i_o_data = (float(_output) / float(_input))
+                    except Exception as e:
+                        i_o_data = float(1)
+                    
+                    # Performance rate
+                    try:
+                        performance_data = (total_output / total_cadence)
+                    except Exception as e:
+                        performance_data = float(1)
 
-                # OEE
-                data = (calculation_data * i_o_data * performance_data) * 100
-                oee_rate.append(round(data))
-
-
-
-
+                    # OEE
+                    data = (calculation_data * i_o_data * performance_data) * 100
+                    oee_rate.append(round(data))
 
         all_devices = zip(
             all_devices, last_state_list, production_list,
@@ -481,9 +476,6 @@ class Overview(View):
 # this is a daily dashboard
 def dashboard_date(request):
     try:
-        sum_of_count_o = 0.0
-        max_count_o = 0.0
-        su_date_value = []
         device_id = request.GET.get("device_id")
         datestrt = request.GET.get("datestrt")
         dateend = request.GET.get("dateend")
@@ -501,6 +493,7 @@ def dashboard_date(request):
             date__gte=datestrt,
             date__lte=dateend,
         )
+
         all_date_list = []
         for obj in devices_details:
             if obj.date:
@@ -542,7 +535,6 @@ def dashboard_date(request):
         distance_covered_data = []
         num = 0
         scraped_unit = 0
-        print(devices_details, "#" * 100)
         for obj in devices_details.distinct('date'):
             if obj.count_input:
                 speed_data.append({ "label": obj.date, "y": int(obj.count_input) })
@@ -683,11 +675,8 @@ def dashboard_date(request):
                 data_in_min_list.remove(value)
                 break
         context = {
-            "mtbf_list": mtbf_list,
-            "su_date_value": su_date_value, "mttr_list": mttr_list,
-            "units_produced": sum_of_count_o,
+            "mtbf_list": mtbf_list, "mttr_list": mttr_list,
             "oee": 0,
-            "maximun": max_count_o,
             "all_devices": Devices.objects.filter(owner=request.user, status="Active"),
             "selected": my_device,
             "st": datestrt,
@@ -710,19 +699,6 @@ def dashboard_date(request):
 def dashboard(request):
     if not request.user.is_authenticated:
         return redirect('Login')
-    # users = Profile.objects.get(owner=request.user)
-    sum_of_count_o = 0
-    total_count_o = 0
-    sum_of_count_i = 0
-    sum_of_state_production = 0
-    sum_of_state_other = 0
-    median_of_count_o_Array = []
-    flag = 0
-    pre_date = ""
-    def_su = 0
-    su_date_value = []
-    sc = 0
-    scp = 0
 
     device_id = request.GET.get("device_id")
     date = request.GET.get("date")
@@ -739,178 +715,56 @@ def dashboard(request):
             device_password=my_device.device_password,
             date=date,
         )
-        sss = API_Device_data.objects.filter(
-            serial_no=my_device.serial_no,
-            device_password=my_device.device_password,
-            date=date,
-        ).values_list('hours', 'count_input', 'count_output')
-        _hours = []
-        _input = []
-        _output = []
-        count = 0
-        for a in sss:
-            if a[0] not in _hours:
-                _hours.append(a[0])
-            if a[1] not in _input:
-                _input.append(a[1])
-            if a[2] not in _output:
-                _output.append(a[2])
-            if a[0] in _hours and a[1] in _input:
-                pass
 
-        print(f"Hours: {_hours}, Input: {_input}, Output: {_output}")
+
+        # sss = API_Device_data.objects.filter(
+        #     serial_no=my_device.serial_no,
+        #     device_password=my_device.device_password,
+        #     date=date,
+        # ).values_list('hours', 'count_input', 'count_output')
+        # _hours = []
+        # _input = []
+        # _output = []
+        # count = 0
+        # for a in sss:
+        #     if a[0] not in _hours:
+        #         _hours.append(a[0])
+        #     if a[1] not in _input:
+        #         _input.append(a[1])
+        #     if a[2] not in _output:
+        #         _output.append(a[2])
+        #     if a[0] in _hours and a[1] in _input:
+        #         pass
+
+        # print(f"Hours: {_hours}, Input: {_input}, Output: {_output}")
+
+
         devices_details = devices_details.distinct('hours')
-        sum_of_count_o_in_production = 0
-        sum_of_cadence = 0
-        su_up = []
-        sp = 0
-        pr_value = []
-        sp = 0
-        so = 0
-        ar_value = []
-        sco = 0
-        sci = 0
-        qr_value = []
-        oee_value = []
-        for data in devices_details:
-            if flag == 0:
-                pre_date = data.hours
-                def_su = def_su + (int(data.count_input) - int(data.count_output))
-                sp = sp + int(data.count_output)
-                sc = sc + float((data.cadence).replace(",", "."))
-                sco = sco + int(data.count_output)
-                sci = sci + int(data.count_input)
-                if data.state == "Production":
-                    scp = scp + 1
-                    sp = sp + 1
-                else:
-                    so = so + 1
-
-                flag = -1
-            else:
-                if pre_date == data.hours:
-                    def_su = def_su + (int(data.count_input) - int(data.count_output))
-                    sp = sp + int(data.count_output)
-                    sc = sc + float((data.cadence).replace(",", "."))
-                    so = so + 1
-                    sco = sco + int(data.count_output)
-                    sci = sci + int(data.count_input)
-                    if data.state == "Production":
-                        scp = scp + 1
-                        sp = sp + 1
-                    else:
-                        so = so + 1
-                else:
-                    if scp != 0:
-                        pr_value.append(format((float(sc) / float(scp)), ".1f"))
-                    else:
-                        pr_value.append(0)
-                    if so != 0:
-                        ar_value.append(format((float(sp) / float(so)), ".1f"))
-                    else:
-                        ar_value.append(0)
-                    if sci != 0:
-                        qr_value.append(format((float(sco) / float(sci)), ".1f"))
-                    else:
-                        qr_value.append(0)
-                    pre_date = data.hours
-                    su_up.append(sp)
-                    su_date_value.append(abs(def_su))
-                    def_su = 0
-                    sc = 0
-                    scp = 0
-                    so = 0
-                    sp = 0
-                    sco = 0
-                    sci = 0
-                    sp = 0
-                    def_su = def_su + (int(data.count_input) - int(data.count_output))
-                    sp = sp + int(data.count_output)
-                    sc = sc + float((data.cadence).replace(",", "."))
-                    so = so + 1
-                    sco = sco + int(data.count_output)
-                    sci = sci + int(data.count_input)
-                    if data.state == "Production":
-                        scp = scp + 1
-                        sp = sp + 1
-                    else:
-                        so = so + 1
-        su_date_value.append(abs(def_su))
-        su_up.append(sp)
-
-        if scp != 0:
-            pr_value.append(format((float(sc) / float(scp)), ".1f"))
-        else:
-            pr_value.append(0)
-        if so != 0:
-            ar_value.append(format((float(sp) / float(so)), ".1f"))
-        else:
-            ar_value.append(0)
-
-        if sci != 0:
-            qr_value.append(format((float(sco) / float(sci)), ".1f"))
-        else:
-            qr_value.append(0)
-
-        for i in range(0, len(pr_value)):
-            oee_value.append(float(pr_value[i]) * float(ar_value[i]) * float(qr_value[i]))
-        
-        std_arr = np.array(median_of_count_o_Array)
-        try:
-            ar = format(float(sum_of_state_production) / float(sum_of_state_other), ".2f")
-        except:
-            ar = 0
-        try:
-            pr = format(
-                ((int(sum_of_cadence) / int(sum_of_count_o_in_production))) * 100, ".2f"
-            )
-        except:
-            pr = 0
-        try:
-            qr = format(float(sum_of_count_o) / float(sum_of_count_i), ".2f")
-        except:
-            qr = 0
-        try:
-            mean = format(float(sum_of_count_o) / float(total_count_o), ".2f")
-        except:
-            mean = 0
-        try:
-            mean = format(float(sum_of_count_o) / float(total_count_o), ".2f")
-        except:
-            mean = 0
-        try:
-            medium = format(statistics.median(median_of_count_o_Array), ".2f")
-        except:
-            medium = 0
-        try:
-            std = format(std_arr.std(), ".2f")
-        except:
-            std = "Not Available"
-        
+        devices_details_count = devices_details.count()
 
 
         # Chart Data
-        speed_data = []
-        distance_covered_data = []
+        product_unit = []
+        scraped_unit_list = []
         num = 0
         scraped_unit = 0
+        _product_unit = 0
         for obj in devices_details:
+            num += 1
             if obj.count_input:
-                speed_data.append({ "label": obj.hours, "y": int(obj.count_input) })
-                num += 1
+                product_unit.append({ "label": obj.hours, "y": int(obj.count_input) })
+                _product_unit = int(obj.count_input)
         _num = 0
         for obj in devices_details:
+            _num += 1
             if obj.count_input and obj.count_output:
                 data =  int(obj.count_input) - int(obj.count_output)
                 if data < 0:
                      data = 0
-                distance_covered_data.append(
+                scraped_unit_list.append(
                     { "label": obj.hours, "y": data }
                 )
                 scraped_unit += data
-                _num += 1
-
-
 
         stop_label_list = []
         breakdown_label_list = []
@@ -923,6 +777,10 @@ def dashboard(request):
         total_state_production = 0
         total_output = 0
         total_cadence = 0
+        _oee = 0
+        _availability = 0
+        _quality = 0
+        _performance = 0
         for obj in devices_details:
             total_state += 1
             if obj.state == "PRODUCTION":
@@ -948,6 +806,7 @@ def dashboard(request):
                 print(e)
                 calculation = 0
                 calculation_data = 0
+            _availability += calculation
             availability_list.append({ "label": obj.hours, "y": calculation })
             # Quality rate
             _input = obj.count_input
@@ -958,6 +817,7 @@ def dashboard(request):
             except Exception as e:
                 i_o = float(100)
                 i_o_data = float(1)
+            _quality += round(i_o)
             quality_list.append({ "label": obj.hours, "y": i_o })
             
             # Performance rate
@@ -967,11 +827,13 @@ def dashboard(request):
             except Exception as e:
                 performance = float(1)
                 performance_data = float(1)
+            _performance += round(performance)
             performance_rate.append({ "label": obj.hours, "y": performance })
 
             # OEE
             data = (calculation_data * i_o_data * performance_data) * 100
             oee_rate.append({ "label": obj.hours, "y": round(data)})
+            _oee += round(data)
 
             # State occurrences Stop
             if obj.state and obj.state.title() == "Stop" and obj.stop and obj.stop.title() not in stop_label_list:
@@ -1040,17 +902,10 @@ def dashboard(request):
                 data_in_min_list.remove(value)
                 break
         context = {
-            'speed_data': speed_data,
-            "su_date_value": su_date_value,
-            'distance_covered_data': distance_covered_data,
-            "units_produced": sum_of_count_o, "Availability_rate": ar,
-            "Performance_rate": pr, "Quality_rate": qr, "mean": mean,
-            "oee": int(ar) * int(pr) * int(qr),
-            "medium": medium, "std": std,
+            'product_unit': product_unit, 'scraped_unit_list': scraped_unit_list,
             "all_devices": Devices.objects.filter(owner=request.user, status="Active"),
-            "selected": my_device, "pr_value": pr_value, "ar_value": ar_value,
-            "qr_value": qr_value, "oee_value": oee_value, "st": date, "ed": "",
-            "su_up": su_up, 'breakdown_datapoints': breakdown_datapoints,
+            "selected": my_device, "st": date, "units_produced": _product_unit, 
+            'breakdown_datapoints': breakdown_datapoints, "oee": _oee,
             "iot_device": page_obj, "availability_list": availability_list,
             'quality_list': quality_list, "performance_rate": performance_rate,
             'datapoints': datapoints, "oee_rate": oee_rate,
@@ -1058,7 +913,9 @@ def dashboard(request):
             "total_stop": total_stop, "scraped_unit": scraped_unit,
             "mtbf": devices_details.filter(mtbf="1", hours="").count(),
             "mttr": devices_details.filter(mttr="1").count(),
-            "devices_details": devices_details, "asa": asa, 'all_type': all_type
+            "devices_details": devices_details, "asa": asa, 'all_type': all_type,
+            "availability_rate": _availability, "quality_rate": _quality,
+            "performance": _performance
         }
         return render(request, "index.html", context)
     return render(request, "index.html")

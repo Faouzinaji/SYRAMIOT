@@ -178,7 +178,7 @@ form {
             <div class="col-lg-3 col-xs-6">
               <div class="small-box shadow bg-1">
                 <div class="inner text-center">
-                  <p style="font-size: 20px; margin-bottom: 0; font-weight: 600;">{{oee}}%</p>
+                  <p style="font-size: 20px; margin-bottom: 0; font-weight: 600;">{{ oee }}%</p>
                   <h3 style="font-size: 12px;">OEE</h3>
                 </div>
               </div>
@@ -186,7 +186,7 @@ form {
             <div class="col-lg-3 col-xs-6">
               <div class="small-box shadow bg-2">
                 <div class="inner text-center">
-                  <p style="font-size: 20px; margin-bottom: 0; font-weight: 600;">{{Availability_rate}}%</p>
+                  <p style="font-size: 20px; margin-bottom: 0; font-weight: 600;">{{ availability_rate }}%</p>
                   <h3 style="font-size: 12px;">Availability-Rate</h3>
                 </div>
               </div>
@@ -195,7 +195,7 @@ form {
               <!-- small box -->
               <div class="small-box shadow bg-1">
                 <div class="inner text-center">
-                  <p style="font-size: 20px; margin-bottom: 0; font-weight: 600;">{{Quality_rate}}%</p>
+                  <p style="font-size: 20px; margin-bottom: 0; font-weight: 600;">{{ quality_rate }}%</p>
                   <h3 style="font-size: 12px;">Quality-Rate</h3>
                 </div>
               </div>
@@ -204,7 +204,7 @@ form {
               <!-- small box -->
               <div class="small-box shadow bg-2">
                 <div class="inner text-center">
-                  <p style="font-size: 20px; margin-bottom: 0; font-weight: 600;">{{Performance_rate}}%</p>
+                  <p style="font-size: 20px; margin-bottom: 0; font-weight: 600;">{{ performance }}%</p>
                   <h3 style="font-size: 12px;">Performance-Rate</h3>
                 </div>
               </div>
@@ -420,78 +420,19 @@ form {
           name: "Product Unit",
           showInLegend: true,
           markerSize: 0,
-          dataPoints: {{ speed_data|safe }}
+          dataPoints: {{ product_unit|safe }}
         },{
           type: "spline",  
           markerSize: 0,
           axisYType: "secondary",
           name: "Scraped Unit",
           showInLegend: true,
-          dataPoints: {{ distance_covered_data|safe }}
+          dataPoints: {{ scraped_unit_list|safe }}
         }]
       });
       chart.render();
       
       
-      var chart = new CanvasJS.Chart("rate", {
-        animationEnabled: true,
-        theme: "light2",
-        exportEnabled: false,
-        title:{
-          text: "Rate"
-        },
-        toolTip: {
-          shared: false
-        },
-        axisX: {
-          title: "Hours",
-        },
-        axisY: {
-          suffix: "%",
-          titleFontColor: "#6D78AD",
-          lineThickness: 1,
-          lineColor: "#6D78AD",
-          tickColor: "#6D78AD"
-        },
-        
-        legend: {
-          cursor: "pointer",
-          verticalAlign: "top",
-          horizontalAlign: "center",
-          dockInsidePlotArea: true,
-          itemclick: toogleDataSeries,
-          fontSize: 12,
-          fontColor: "dimGrey",
-        },
-        data: [{
-
-          type:"line",
-          name: "Availability_Rate",
-          showInLegend: true,
-          markerSize: 0,
-          dataPoints: {{ availability_list|safe }}
-        },{
-          type:"line",
-          name: "Quality_Rate",
-          showInLegend: true,
-          markerSize: 0,
-          dataPoints: {{ quality_list|safe }}
-        },{
-          type:"line",
-          name: "Performance_Rate",
-          showInLegend: true,
-          markerSize: 0,
-          dataPoints: {{ performance_rate|safe }}
-        },{
-          type:"line",
-          name: "oee_rate",
-          showInLegend: true,
-          markerSize: 0,
-          dataPoints: {{ oee_rate|safe }}
-        },]
-      });
-      chart.render();
-
 
       var chart = new CanvasJS.Chart("stop", {
           animationEnabled: true,
@@ -558,6 +499,78 @@ form {
     ]
     });
     chart.render();
+
+
+
+
+
+
+
+
+
+
+
+
+
+    var chart = new CanvasJS.Chart("rate", {
+        animationEnabled: true,
+        theme: "light2",
+        exportEnabled: false,
+        title:{
+          text: "Rate"
+        },
+        toolTip: {
+          shared: false
+        },
+        axisX: {
+          title: "Hours",
+        },
+        axisY: {
+          suffix: "%",
+          titleFontColor: "#6D78AD",
+          lineThickness: 1,
+          lineColor: "#6D78AD",
+          tickColor: "#6D78AD"
+        },
+        
+        legend: {
+          cursor: "pointer",
+          verticalAlign: "top",
+          horizontalAlign: "center",
+          dockInsidePlotArea: true,
+          itemclick: toogleDataSeries,
+          fontSize: 12,
+          fontColor: "dimGrey",
+        },
+        data: [{
+
+          type:"line",
+          name: "Availability_Rate",
+          showInLegend: true,
+          markerSize: 0,
+          dataPoints: {{ availability_list|safe }}
+        },{
+          type:"line",
+          name: "Quality_Rate",
+          showInLegend: true,
+          markerSize: 0,
+          dataPoints: {{ quality_list|safe }}
+        },{
+          type:"line",
+          name: "Performance_Rate",
+          showInLegend: true,
+          markerSize: 0,
+          dataPoints: {{ performance_rate|safe }}
+        },{
+          type:"line",
+          name: "oee_rate",
+          showInLegend: true,
+          markerSize: 0,
+          dataPoints: {{ oee_rate|safe }}
+        },]
+      });
+      chart.render();
+
 
     }
     </script>  
