@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path('payment_success', views.stripe_payment_success,name='thanks_page'),
     path('history/', views.PaymentHistory.as_view(),name='payment_history'),
+    path('invoice/<int:pk>/', views.InvoiceView.as_view(),name='invoice'),
     path(
         'order_payment_success', views.stripe_buy_devices_payment_success,
         name='buy_devices_thanks_page'

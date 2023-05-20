@@ -221,33 +221,39 @@ def stripe_payment_success(request):
             )
 
         obj_device = Devices.objects.filter(device_id__in=sr_no_devices)
+        _user = User.objects.get(pk=request.user.pk)
         context = {
-            "obj_device": obj_device, "total_plan": plan.price * obj_device.count(),
-            "plan": plan
+            "invoice": invoice, "total_amount": _total_amount, "price": plan,
+            "sub_total": int(plan.price) * obj_device.count() , "total_vat": vat,
+            "qt": obj_device.count(), "obj_device": obj_device,
+            "user": _user
         }
         
-        # current_site = get_current_site(request)
-        # mail_subject = f'Invoice'
-        # message = render_to_string('invoice.html', {
-        #     'domain': current_site.domain,
-        #     "obj_device": obj_device, "total_plan": plan.price * obj_device.count(),
-        #     "plan": plan
-        # })
-        # email = EmailMultiAlternatives(
-        #     mail_subject, message, to=all_email
-        # )
-        # email.attach_alternative(message, "text/html")
-        # email.send()
-        # print("Mail Sent Success =====================")
-        
+        current_site = get_current_site(request)
+        mail_subject = f'Invoice'
+        message = render_to_string('invoice.html', {
+            'domain': current_site.domain,
+            "invoice": invoice, "total_amount": _total_amount, "price": plan,
+            "sub_total": int(plan.price) * obj_device.count() , "total_vat": vat,
+            "Show": False, "user": _user
+        })
+        email = EmailMultiAlternatives(
+            mail_subject, message, to=all_email
+        )
+        email.attach_alternative(message, "text/html")
+        email.send()
+        print("Mail Sent Success =====================")
 
         return render(request, 'payment_success.html', context)
     except Exception as e:
         print('exception in stripe success is:',e)
+        sr_no_devices = request.session.get('sr_no_devices')
         plan = Price_plan.objects.get(plan_choice="certificate")
-        inv = Invoice.objects.filter(user=request.user).last()
+        invoice = Invoice.objects.all().last()
+        obj_device = Devices.objects.filter(device_id__in=sr_no_devices)
         context = {
-            "plan": plan, "inv": inv
+            "obj_device": obj_device,  "price": plan, "invoice": invoice,
+            "sub_total": int(plan.price) * obj_device.count() , 
         }
         return render(request, 'payment_success.html', context)
 
@@ -256,6 +262,25 @@ class PaymentHistory(View):
     def get(self, request):
         invoice = Invoice.objects.filter(user=request.user)
         return render(request, "history.html", {"invoice": invoice})
+
+
+class InvoiceView(View):
+    def get(self, request, pk):
+        invoice = Invoice.objects.get(pk=pk)
+        price = Price_plan.objects.get(plan_choice = "certificate")
+        sub_total = 0
+        total_vat = 0
+        for obj in invoice.inv_id.all():
+            sub_total += price.price
+            total_vat += int(price.price) * 20 / 100
+        total_amount = sub_total + total_vat
+        _user = User.objects.get(pk=request.user.pk)
+        context = {
+            "invoice": invoice, "total_amount": total_amount, "price": price,
+            "sub_total": sub_total, "total_vat": total_vat, "Show": True,
+            "user": _user
+        }
+        return render(request, "invoice.html", context)
         
 
 
