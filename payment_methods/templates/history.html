@@ -50,11 +50,11 @@
                                     <tr>
                                         <th>SL</th>
                                         <th>INV ID</th>
-                                        <th>Designation</th>
-                                        <th>Status</th>
-                                        <th>Start Date</th>
-                                        <th>End Date</th>
+                                        <th>Date</th>
                                         <th>Price</th>
+                                        <th>Vat</th>
+                                        <th>Total Amount</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -62,11 +62,13 @@
                                     <tr>
                                         <td>{{ forloop.counter }}</td>
                                         <td>{{ obj.invoice_id }}</td>
-                                        <td>{{ obj.inv_id.all }}</td>
-                                        <td>{{ obj.serial_no.status }}</td>
-                                        <td>{{ obj.ssubsciption_from }}</td>
-                                        <td>{{ obj.subsciption_to }}</td>
-                                        <td>{{ obj.price }}</td>
+                                        <td>{{ obj.start_date }}</td>
+                                        <td>{{ obj.amount }}</td>
+                                        <td>{{ obj.vat }}</td>
+                                        <td>{{ obj.total_amount }}</td>
+                                        <td>
+                                            <a href="{% url 'invoice' obj.pk %}" class="btn btn-success">See Invoice</a>
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
