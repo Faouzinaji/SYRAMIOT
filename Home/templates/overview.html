@@ -170,9 +170,6 @@
               <div class="row w-100">
                 <div class="col-20">
                   <div class="section">
-                    <div class="section_icone">
-                      <i class="fa fa-desktop" aria-hidden="true"></i>
-                    </div>
                     <div class="text text-center">
                       <h4>Device</h4>
                       <h3>{{ device.designation }}</h3>
@@ -188,16 +185,6 @@
                   {% elif state.title == 'Unknown_State' %} un
                   {% endif %}
                   ">
-                    <div class="section_font 
-                    {% if state.title == 'Breakdown' %} red_i 
-                    {% elif state.title == 'Production' %} green_i
-                    {% elif state.title == 'Stop' %} stop_i
-                    {% elif state.title == 'Off' %} off_i
-                    {% elif state.title == 'Unknown_State' %} un_i
-                    {% endif %}
-                    ">
-                      S
-                    </div>
                     <div class="text text-center">
                       <h4>Last State</h4>
                       <h3>{{ state.title }}</h3>
@@ -206,9 +193,6 @@
                 </div>
                 <div class="col-20">
                   <div class="section">
-                    <div class="section_font">
-                      P
-                    </div>
                     <div class="text text-center">
                       <h4>Product Unit</h4>
                       <h3>{{ product }}</h3>
@@ -217,9 +201,6 @@
                 </div>
                 <div class="col-20">
                   <div class="section">
-                    <div class="section_font">
-                      S
-                    </div>
                     <div class="text text-center">
                       <h4>Scraped Unit</h4>
                       <h3>{{ scraped }}</h3>
@@ -232,17 +213,9 @@
                     {% elif oee < 60 %} blue
                     {% elif oee >= 60 %} green
                     {% endif %}">
-                    <div class="section_font
-                    {% if oee < 20 %} red_i 
-                    {% elif oee < 60 %} blue_i
-                    {% elif oee >= 60 %} green_i
-                    {% endif %}
-                    ">
-                      O
-                    </div>
                     <div class="text text-center">
                       <h4>OEE</h4>
-                      <h3>{{ oee }}</h3>
+                      <h3>{{ oee }}%</h3>
                     </div>
                   </div>
                 </div>

@@ -2,12 +2,15 @@ import csv
 import requests
 import datetime
 from django.contrib import messages, auth
+from django.db.models import FloatField
+from django.db.models.functions import Cast
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.generic import View
 from django.core.paginator import Paginator
+from django.db.models import Sum
 from authentication.models import Profile
 from payment_methods.models import Subscriber
 from .models import *
@@ -19,7 +22,6 @@ from dateutil.relativedelta import relativedelta
 import datetime
 from .serializers import *
 from rest_framework import generics
-import statistics
 import numpy as np
 from .models import *
 from django.views.decorators.csrf import csrf_exempt
@@ -716,49 +718,49 @@ def dashboard(request):
             date=date,
         )
 
-
-        # sss = API_Device_data.objects.filter(
-        #     serial_no=my_device.serial_no,
-        #     device_password=my_device.device_password,
-        #     date=date,
-        # ).values_list('hours', 'count_input', 'count_output')
-        # _hours = []
-        # _input = []
-        # _output = []
-        # count = 0
-        # for a in sss:
-        #     if a[0] not in _hours:
-        #         _hours.append(a[0])
-        #     if a[1] not in _input:
-        #         _input.append(a[1])
-        #     if a[2] not in _output:
-        #         _output.append(a[2])
-        #     if a[0] in _hours and a[1] in _input:
-        #         pass
-
-        # print(f"Hours: {_hours}, Input: {_input}, Output: {_output}")
-
-
-        devices_details = devices_details.distinct('hours')
+        devices_detail = devices_details
         devices_details_count = devices_details.count()
 
 
         # Chart Data
         product_unit = []
         scraped_unit_list = []
-        num = 0
         scraped_unit = 0
         _product_unit = 0
-        for obj in devices_details:
-            num += 1
+
+        # product_unit
+        for obj in devices_details.distinct('hours'):
+
             if obj.count_input:
-                product_unit.append({ "label": obj.hours, "y": int(obj.count_input) })
-                _product_unit = int(obj.count_input)
-        _num = 0
-        for obj in devices_details:
-            _num += 1
+                _data = API_Device_data.objects.filter(
+                    serial_no=my_device.serial_no,
+                    device_password=my_device.device_password,
+                    date=date, hours=obj.hours
+                ).annotate(as_float=Cast('count_input', FloatField())).aggregate(Sum('as_float'))['as_float__sum']
+
+                product_unit.append({ "label": obj.hours, "y": int(_data) })
+                _product_unit = int(_data)
+
+        # scraped_unit
+        for obj in devices_details.distinct('hours'):
             if obj.count_input and obj.count_output:
-                data =  int(obj.count_input) - int(obj.count_output)
+                # data =  int(obj.count_input) - int(obj.count_output)
+                _input = API_Device_data.objects.filter(
+                    serial_no=my_device.serial_no,
+                    device_password=my_device.device_password,
+                    date=date, hours=obj.hours
+                ).annotate(as_float=Cast('count_input', FloatField())).aggregate(Sum('as_float'))['as_float__sum']
+
+                _output = API_Device_data.objects.filter(
+                    serial_no=my_device.serial_no,
+                    device_password=my_device.device_password,
+                    date=date, hours=obj.hours
+                ).annotate(as_float=Cast('count_output', FloatField())).aggregate(Sum('as_float'))['as_float__sum']
+                data =  int(_input) - int(_output)
+
+
+
+
                 if data < 0:
                      data = 0
                 scraped_unit_list.append(
@@ -768,10 +770,12 @@ def dashboard(request):
 
         stop_label_list = []
         breakdown_label_list = []
+
         availability_list = []
         quality_list = []
         performance_rate = []
         oee_rate = []
+
         total_state = 0
         total_state_off = 0
         total_state_production = 0
@@ -781,14 +785,15 @@ def dashboard(request):
         _availability = 0
         _quality = 0
         _performance = 0
-        for obj in devices_details:
+        for obj in devices_details.distinct('hours'):
+
             total_state += 1
-            if obj.state == "PRODUCTION":
+            if obj.state and obj.state.upper() == "PRODUCTION":
                 total_state_production += 1
-            if obj.state == "OFF":
+            if obj.state and obj.state.upper()  == "OFF":
                 total_state_off += 1
-            
-            if obj.count_output:
+
+            if obj.count_output and obj.count_output:
                 total_output += float(obj.count_output)
             if obj.cadence:
                 try:
@@ -796,44 +801,55 @@ def dashboard(request):
                 except Exception as e:
                     total_cadence += float(1)
             
+
+
             # Availability rate
             try:
                 calculation_data = (
                     (total_state - total_state_off - total_state_production) / (total_state - total_state_off)
                 )
-                calculation = round(calculation_data * 100)
+                # .85 * 100
+                calculation = round(calculation_data)
             except Exception as e:
                 print(e)
                 calculation = 0
                 calculation_data = 0
             _availability += calculation
             availability_list.append({ "label": obj.hours, "y": calculation })
+
+
+
             # Quality rate
             _input = obj.count_input
             _output = obj.count_output
             try:
                 i_o_data = (float(_output) / float(_input))
-                i_o = (round(i_o_data * 100))
+                i_o = (round(i_o_data))
             except Exception as e:
                 i_o = float(100)
                 i_o_data = float(1)
             _quality += round(i_o)
             quality_list.append({ "label": obj.hours, "y": i_o })
             
+
+
             # Performance rate
             try:
                 performance_data = (total_output / total_cadence)
-                performance = round(performance_data * 100)
+                performance = round(performance_data)
             except Exception as e:
                 performance = float(1)
                 performance_data = float(1)
             _performance += round(performance)
             performance_rate.append({ "label": obj.hours, "y": performance })
 
+
+
             # OEE
-            data = (calculation_data * i_o_data * performance_data) * 100
+            data = (calculation_data * i_o_data * performance_data)
             oee_rate.append({ "label": obj.hours, "y": round(data)})
             _oee += round(data)
+
 
             # State occurrences Stop
             if obj.state and obj.state.title() == "Stop" and obj.stop and obj.stop.title() not in stop_label_list:
@@ -871,21 +887,17 @@ def dashboard(request):
             breakdown_datapoints.append({ "y": label_count, "label": data, "color": f"#17{num2}EA2" }),
             num2 += 1
 
-        paginator = Paginator(devices_details, 25)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-
         # Test 2
-        all_type = []; time_list = []
+        all_type = []
+        time_list = []
         for data in devices_details:
             if data.state and data.state.title() not in all_type:
                 all_type.append(data.state.title())
 
-            if data.time and data.time not in time_list:
+            if data.hours and data.hours not in time_list:
                 time_list.append(data.hours)
 
         data_in_min_list = []
-        
         for label in all_type:
             count = 0
             label_list = []
@@ -906,14 +918,15 @@ def dashboard(request):
             "all_devices": Devices.objects.filter(owner=request.user, status="Active"),
             "selected": my_device, "st": date, "units_produced": _product_unit, 
             'breakdown_datapoints': breakdown_datapoints, "oee": _oee,
-            "iot_device": page_obj, "availability_list": availability_list,
+            "availability_list": availability_list,
             'quality_list': quality_list, "performance_rate": performance_rate,
             'datapoints': datapoints, "oee_rate": oee_rate,
             'data_in_min': data_in_min, "total_breakdown": total_breakdown,
             "total_stop": total_stop, "scraped_unit": scraped_unit,
             "mtbf": devices_details.filter(mtbf="1", hours="").count(),
             "mttr": devices_details.filter(mttr="1").count(),
-            "devices_details": devices_details, "asa": asa, 'all_type': all_type,
+            "devices_details": devices_details.distinct('hours'), "asa": asa, 
+            'all_type': all_type,
             "availability_rate": _availability, "quality_rate": _quality,
             "performance": _performance
         }

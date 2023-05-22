@@ -27,3 +27,8 @@ def get_oee(get_oee):
 @register.filter(name='mix_data')
 def mix_data(mix_data):
   return mix_data['y']
+
+@register.filter(name='get_count')
+def get_count(data, data2):
+  a = API_Device_data.objects.filter(hours=data, state__icontains=data2).count()
+  return a
