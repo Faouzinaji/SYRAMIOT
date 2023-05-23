@@ -2,7 +2,7 @@ import csv
 import requests
 import datetime
 from django.contrib import messages, auth
-from django.db.models import FloatField
+from django.db.models import FloatField, Count, Q
 from django.db.models.functions import Cast
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -739,7 +739,7 @@ def dashboard(request):
                 ).annotate(as_float=Cast('count_input', FloatField())).aggregate(Sum('as_float'))['as_float__sum']
 
                 product_unit.append({ "label": obj.hours, "y": int(_data) })
-                _product_unit = int(_data)
+                _product_unit += int(_data)
 
         # scraped_unit
         for obj in devices_details.distinct('hours'):
@@ -756,11 +756,9 @@ def dashboard(request):
                     device_password=my_device.device_password,
                     date=date, hours=obj.hours
                 ).annotate(as_float=Cast('count_output', FloatField())).aggregate(Sum('as_float'))['as_float__sum']
+                
+                
                 data =  int(_input) - int(_output)
-
-
-
-
                 if data < 0:
                      data = 0
                 scraped_unit_list.append(
@@ -787,21 +785,15 @@ def dashboard(request):
         _performance = 0
         for obj in devices_details.distinct('hours'):
 
-            total_state += 1
-            if obj.state and obj.state.upper() == "PRODUCTION":
-                total_state_production += 1
-            if obj.state and obj.state.upper()  == "OFF":
-                total_state_off += 1
 
-            if obj.count_output and obj.count_output:
-                total_output += float(obj.count_output)
-            if obj.cadence:
-                try:
-                    total_cadence += float(obj.cadence)
-                except Exception as e:
-                    total_cadence += float(1)
-            
-
+            api_device = API_Device_data.objects.filter(
+                serial_no=my_device.serial_no,
+                device_password=my_device.device_password,
+                date=date, hours=obj.hours
+            )
+            total_state = api_device.count()
+            total_state_production = api_device.filter(state__icontains="PRODUCTION").count()
+            total_state_off = api_device.filter(state__icontains="OFF").count()
 
             # Availability rate
             try:
@@ -831,8 +823,6 @@ def dashboard(request):
             _quality += round(i_o)
             quality_list.append({ "label": obj.hours, "y": i_o })
             
-
-
             # Performance rate
             try:
                 performance_data = (total_output / total_cadence)
@@ -928,6 +918,9 @@ def dashboard(request):
         except Exception as e:
             print(e)
             _quality = 0
+        on_to_twt = []
+        for i in range(0, 24):
+            on_to_twt.append(i)
         context = {
             'product_unit': product_unit, 'scraped_unit_list': scraped_unit_list,
             "all_devices": Devices.objects.filter(owner=request.user, status="Active"),
@@ -943,7 +936,7 @@ def dashboard(request):
             "devices_details": devices_details.distinct('hours'), "asa": asa, 
             'all_type': all_type, "date": date,
             "availability_rate": _availability, "quality_rate": _quality,
-            "performance": _performance
+            "performance": _performance, "on_to_twt": on_to_twt
         }
         return render(request, "index.html", context)
     return render(request, "index.html")
