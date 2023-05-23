@@ -90,12 +90,12 @@ form {
     page-break-before: always;
   }
   #Units, #rate, #mixed, #stop, #brackdown {
-    width:100% !important; 
+    width: 40% !important; 
     height: 360px;
 
   }
   @page { 
-        size: landscape;
+        size: 'A2';
     }
 }
 .goog-logo-link {
@@ -265,90 +265,23 @@ form {
                     <thead>
                       <tr>
                         <th>Hours</th>
-                        <th>0</th>
-                        <th>1</th>
-                        <th>2</th>
-                        <th>3</th>
-                        <th>4</th>
-                        <th>5</th>
-                        <th>6</th>
-                        <th>7</th>
-                        <th>8</th>
-                        <th>9</th>
-                        <th>10</th>
-                        <th>11</th>
-                        <th>12</th>
-                        <th>13</th>
-                        <th>14</th>
-                        <th>15</th>
-                        <th>16</th>
-                        <th>17</th>
-                        <th>18</th>
-                        <th>19</th>
-                        <th>20</th>
-                        <th>21</th>
-                        <th>22</th>
-                        <th>23</th>
+                        {% for i in on_to_twt %}
+                        <th>{{ i }}</th>
+                        {% endfor %}
                       </tr>
                     </thead>
                     <tbody>
-                      {% comment %}
-                      <!-- {% for data in devices_details %}
-                      {% endfor %} -->
-                      {% endcomment %}
                       <tr>
                         <td>Product Unit</td>
-                        <td>{{ date|produce_unit:"0" }}</td>
-                        <td>{{ date|produce_unit:"1" }}</td>
-                        <td>{{ date|produce_unit:"2" }}</td>
-                        <td>{{ date|produce_unit:"3" }}</td>
-                        <td>{{ date|produce_unit:"4" }}</td>
-                        <td>{{ date|produce_unit:"5" }}</td>
-                        <td>{{ date|produce_unit:"6" }}</td>
-                        <td>{{ date|produce_unit:"7" }}</td>
-                        <td>{{ date|produce_unit:"8" }}</td>
-                        <td>{{ date|produce_unit:"9" }}</td>
-                        <td>{{ date|produce_unit:"10" }}</td>
-                        <td>{{ date|produce_unit:"11" }}</td>
-                        <td>{{ date|produce_unit:"12" }}</td>
-                        <td>{{ date|produce_unit:"13" }}</td>
-                        <td>{{ date|produce_unit:"14" }}</td>
-                        <td>{{ date|produce_unit:"15" }}</td>
-                        <td>{{ date|produce_unit:"16" }}</td>
-                        <td>{{ date|produce_unit:"17" }}</td>
-                        <td>{{ date|produce_unit:"18" }}</td>
-                        <td>{{ date|produce_unit:"19" }}</td>
-                        <td>{{ date|produce_unit:"20" }}</td>
-                        <td>{{ date|produce_unit:"21" }}</td>
-                        <td>{{ date|produce_unit:"22" }}</td>
-                        <td>{{ date|produce_unit:"23" }}</td>
+                        {% for i in on_to_twt %}
+                        <td>{{ date|produce_unit:i }}</td>
+                        {% endfor %}
                       </tr>
                       <tr>
                         <td>Scraped Unit</td>
-                        <td>{{ date|scraped_unit:"0" }}</td>
-                        <td>{{ date|scraped_unit:"1" }}</td>
-                        <td>{{ date|scraped_unit:"2" }}</td>
-                        <td>{{ date|scraped_unit:"3" }}</td>
-                        <td>{{ date|scraped_unit:"4" }}</td>
-                        <td>{{ date|scraped_unit:"5" }}</td>
-                        <td>{{ date|scraped_unit:"6" }}</td>
-                        <td>{{ date|scraped_unit:"7" }}</td>
-                        <td>{{ date|scraped_unit:"8" }}</td>
-                        <td>{{ date|scraped_unit:"9" }}</td>
-                        <td>{{ date|scraped_unit:"10" }}</td>
-                        <td>{{ date|scraped_unit:"11" }}</td>
-                        <td>{{ date|scraped_unit:"12" }}</td>
-                        <td>{{ date|scraped_unit:"13" }}</td>
-                        <td>{{ date|scraped_unit:"14" }}</td>
-                        <td>{{ date|scraped_unit:"15" }}</td>
-                        <td>{{ date|scraped_unit:"16" }}</td>
-                        <td>{{ date|scraped_unit:"17" }}</td>
-                        <td>{{ date|scraped_unit:"18" }}</td>
-                        <td>{{ date|scraped_unit:"19" }}</td>
-                        <td>{{ date|scraped_unit:"20" }}</td>
-                        <td>{{ date|scraped_unit:"21" }}</td>
-                        <td>{{ date|scraped_unit:"22" }}</td>
-                        <td>{{ date|scraped_unit:"23" }}</td>
+                        {% for i in on_to_twt %}
+                        <td>{{ date|scraped_unit:i }}</td>
+                        {% endfor %}
                       </tr>
                     </tbody>
                   </table>
@@ -381,25 +314,37 @@ form {
                   <table style="width: 100%; margin: 0 auto;">
                     <thead>
                       <tr>
-                        <th>Date</th>
                         <th>Hours</th>
-                        <th>Availability-Rate</th>
-                        <th>Quality-Rate</th>
-                        <th>Performance-Rate</th>
-                        <th>OEE</th>
+                        {% for i in on_to_twt %}
+                        <th>{{ i }}</th>
+                        {% endfor %}
                       </tr>
                     </thead>
                     <tbody>
-                      {% for data, availability, quality, performance, oee in asa %}
                       <tr>
-                        <td>{{ data.date }}</td>
-                        <td>{{ data.hours }}</td>
-                        <td>{{ availability|get_availability }}</td>
-                        <td>{{ quality|get_get_quality }}</td>
-                        <td>{{ performance|get_performance }}</td>
-                        <td>{{ oee|get_oee }}</td>
+                        <th>Availability-Rate</th>
+                        {% for i in on_to_twt %}
+                        <td>{{ date|get_availability:i }}</td>
+                        {% endfor %}
                       </tr>
-                      {% endfor %}
+                      <tr>
+                        <th>Performance-Rate</th>
+                        {% for i in on_to_twt %}
+                        <td>{{ date|get_performance:i }}</td>
+                        {% endfor %}
+                      </tr>
+                      <tr>
+                        <th>Quality-Rate</th>
+                        {% for i in on_to_twt %}
+                        <td>{{ date|get_quality:i }}</td>
+                        {% endfor %}
+                      </tr>
+                      <tr>
+                        <th>OEE</th>
+                        {% for i in on_to_twt %}
+                        <td>{{ date|get_oee:i }}</td>
+                        {% endfor %}
+                      </tr>
                     </tbody>
                   </table>
                 </div>
