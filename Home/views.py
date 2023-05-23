@@ -913,6 +913,21 @@ def dashboard(request):
                 data_in_min[key] = value
                 data_in_min_list.remove(value)
                 break
+        try:
+            _performance = round(_performance / len(time_list))
+        except Exception as e:
+            print(e)
+            _performance = 0
+        try:
+            _availability = round(_availability / len(time_list))
+        except Exception as e:
+            print(e)
+            _availability = 0
+        try:
+            _quality = round(_quality / len(time_list))
+        except Exception as e:
+            print(e)
+            _quality = 0
         context = {
             'product_unit': product_unit, 'scraped_unit_list': scraped_unit_list,
             "all_devices": Devices.objects.filter(owner=request.user, status="Active"),
@@ -926,7 +941,7 @@ def dashboard(request):
             "mtbf": devices_details.filter(mtbf="1", hours="").count(),
             "mttr": devices_details.filter(mttr="1").count(),
             "devices_details": devices_details.distinct('hours'), "asa": asa, 
-            'all_type': all_type,
+            'all_type': all_type, "date": date,
             "availability_rate": _availability, "quality_rate": _quality,
             "performance": _performance
         }
