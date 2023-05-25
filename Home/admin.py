@@ -12,7 +12,7 @@ admin.site.register(Devices,DevicesAdmin)
 class API_Device_dataAdmin(admin.ModelAdmin):
     list_display = (
         'device_id','serial_no','device_password','state', 'stop', 'cadence',
-        'time'
+        'date', 'time', 'count_input', 'count_output'
     )
 
     search_fields = ('date', 'serial_no')

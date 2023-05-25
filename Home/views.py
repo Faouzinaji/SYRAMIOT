@@ -486,7 +486,7 @@ def dashboard_date(request):
         else:
             my_device = Devices.objects.filter(owner=request.user).first()
         if not datestrt:
-            datestrt = datetime.date.today()
+            datestrt = datetime.date.today() - datetime.timedelta(days=7)
         if not dateend:
             dateend = datetime.date.today()
         devices_details = API_Device_data.objects.filter(
@@ -495,6 +495,7 @@ def dashboard_date(request):
             date__gte=datestrt,
             date__lte=dateend,
         )
+        _devices_details = devices_details
 
         all_date_list = []
         for obj in devices_details:
@@ -532,89 +533,99 @@ def dashboard_date(request):
             total_state += 1
             mttr_list.append({ "label": date, "y": summary_mttr })
 
+
         # Chart Data
         speed_data = []
-        distance_covered_data = []
-        num = 0
+        units_produced_list = []
+
         scraped_unit = 0
+        units_produced = 0
         for obj in devices_details.distinct('date'):
-            if obj.count_input:
-                speed_data.append({ "label": obj.date, "y": int(obj.count_input) })
-                num += 1
-        _num = 0
-        for obj in devices_details.distinct('date'):
-            if obj.count_input and obj.count_output:
-                data =  int(obj.count_input) - int(obj.count_output)
-                if data < 0:
-                        data = 0
-                distance_covered_data.append(
-                    { "label": obj.date, "y": data }
-                )
-                scraped_unit += data
-                _num += 1
+            count_input = _devices_details.filter(date=obj.date).annotate(as_float=Cast('count_input', FloatField())).aggregate(Sum('as_float'))['as_float__sum']
+            count_output = _devices_details.filter(date=obj.date).annotate(as_float=Cast('count_output', FloatField())).aggregate(Sum('as_float'))['as_float__sum']
+            
+            if count_input:
+                units_produced_list.append({ "label": obj.date, "y": int(count_input) })
+                units_produced += int(count_input)
+            else:
+                units_produced_list.append({ "label": obj.date, "y": 0 })
+                units_produced += 0
 
-
+            if count_input and count_output:
+                _adata =  int(count_input) - int(count_output)
+                if _adata < 0:
+                    _adata = 0
+                speed_data.append({ "label": obj.date, "y": _adata })
+                scraped_unit += _adata
+            else:
+                speed_data.append({ "label": obj.date, "y": 0 })
+                scraped_unit += 0
+            _adata = 0
         stop_label_list = []
         breakdown_label_list = []
+
         availability_list = []
         quality_list = []
         performance_rate = []
         oee_rate = []
+        
         total_state = 0
         total_state_off = 0
         total_state_production = 0
         total_output = 0
         total_cadence = 0
+
+        _availability_rate = 0
+        _quality_rate = 0
+        _performance_rate = 0
+        _oee = 0
         for obj in devices_details.distinct('date'):
-            total_state += 1
-            if obj.state == "PRODUCTION":
-                total_state_production += 1
-            if obj.state == "OFF":
-                total_state_off += 1
-            
-            if obj.count_output:
-                total_output += float(obj.count_output)
-            if obj.cadence:
-                try:
-                    total_cadence += float(obj.cadence)
-                except Exception as e:
-                    total_cadence += float(1)
-            
+
+            total_state = _devices_details.count()
+            total_state_production = _devices_details.filter(state__icontains="PRODUCTION").count()
+            total_state_off = _devices_details.filter(state__icontains="OFF").count()
+            _total_cadence = _devices_details.filter(state__icontains="PRODUCTION")
+            total_cadence = _total_cadence.annotate(as_float=Cast('cadence', FloatField())).aggregate(Sum('as_float'))['as_float__sum']
+
             # Availability rate
             try:
                 calculation_data = (
                     (total_state - total_state_off - total_state_production) / (total_state - total_state_off)
                 )
-                calculation = calculation_data * 100
+                calculation = calculation_data
             except Exception as e:
                 print(e)
                 calculation = 0
                 calculation_data = 0
+            _availability_rate += calculation
             availability_list.append({ "label": obj.date, "y": calculation })
             
             # Quality rate
             _input = obj.count_input
             _output = obj.count_output
             try:
-                i_o_data = (float(_output) / float(_input))
-                i_o = i_o_data * 100
+                i_o_data = (int(_output) / int(_input))
+                i_o = i_o_data
             except Exception as e:
-                i_o = float(100)
-                i_o_data = float(1)
+                i_o = 100
+                i_o_data = 1
+            _quality_rate += i_o
             quality_list.append({ "label": obj.date, "y": i_o })
             
             # Performance rate
             try:
                 performance_data = (total_output / total_cadence)
-                performance = performance_data * 100
+                performance = performance_data
             except Exception as e:
-                performance = float(1)
-                performance_data = float(1)
+                performance = 1
+                performance_data = 1
+            _performance_rate += performance
             performance_rate.append({ "label": obj.date, "y": performance })
 
             # OEE
-            data = (calculation_data * i_o_data * performance_data) * 100
+            data = (calculation_data * i_o_data * performance_data)
             oee_rate.append({ "label": obj.date, "y": data})
+            _oee += data
 
             # State occurrences Stop
             if obj.state and obj.state.title() == "Stop" and obj.stop and obj.stop.title() not in stop_label_list:
@@ -646,10 +657,6 @@ def dashboard_date(request):
             breakdown_datapoints.append({ "label": date, "label": data, "color": f"#17{num2}EA2" }),
             num2 += 1
 
-        paginator = Paginator(devices_details, 25)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-
         # Test 2
         all_type = []; date_list = []
         for data in devices_details:
@@ -676,21 +683,45 @@ def dashboard_date(request):
                 data_in_min[key] = value
                 data_in_min_list.remove(value)
                 break
+        
+
+        try:
+            _performance_rate = round(_performance_rate / len(date_list))
+        except Exception as e:
+            print(e)
+            _performance_rate = 0
+        try:
+            _availability_rate = round(_availability_rate / len(date_list))
+        except Exception as e:
+            print(e)
+            _availability_rate = 0
+        try:
+            _quality_rate = round(_quality_rate / len(date_list))
+        except Exception as e:
+            print(e)
+            _quality_rate = 0
+        try:
+            _oee = round(_oee)
+        except Exception as e:
+            print(e)
+            _oee = 0
+
         context = {
             "mtbf_list": mtbf_list, "mttr_list": mttr_list,
-            "oee": 0,
+            "oee": _oee, "units_produced": units_produced,
             "all_devices": Devices.objects.filter(owner=request.user, status="Active"),
-            "selected": my_device,
-            "st": datestrt,
-            "ed": dateend, "scraped_unit": 0,
+            "selected": my_device, "availability_rate": _availability_rate,
+            "st": datestrt, "quality_rate": _quality_rate,
+            "ed": dateend, "scraped_unit": 0, "rate_performance": _performance_rate,
             "mtbf": devices_details.filter(mtbf="1", hours="").count(),
             "mttr": devices_details.filter(mttr="1").count(),
             'data_in_min': data_in_min, "total_breakdown": total_breakdown,
             "total_stop": total_stop, "scraped_unit": scraped_unit,
             "datapoints": datapoints, "breakdown_datapoints": breakdown_datapoints,
-            "speed_data": speed_data, "distance_covered_data": distance_covered_data,
+            "speed_data": speed_data, "units_produced_list": units_produced_list,
             "availability_list": availability_list, "quality_list": quality_list,
-            "performance_rate": performance_rate, "oee_rate": oee_rate
+            "performance_rate": performance_rate, "oee_rate": oee_rate,
+            "date_list": date_list
         }
         return render(request, "index2.html", context)
     except Exception as e:
@@ -717,10 +748,6 @@ def dashboard(request):
             device_password=my_device.device_password,
             date=date,
         )
-
-        devices_detail = devices_details
-        devices_details_count = devices_details.count()
-
 
         # Chart Data
         product_unit = []
@@ -757,7 +784,6 @@ def dashboard(request):
                     date=date, hours=obj.hours
                 ).annotate(as_float=Cast('count_output', FloatField())).aggregate(Sum('as_float'))['as_float__sum']
                 
-                
                 data =  int(_input) - int(_output)
                 if data < 0:
                      data = 0
@@ -784,8 +810,6 @@ def dashboard(request):
         _quality = 0
         _performance = 0
         for obj in devices_details.distinct('hours'):
-
-
             api_device = API_Device_data.objects.filter(
                 serial_no=my_device.serial_no,
                 device_password=my_device.device_password,
@@ -794,6 +818,8 @@ def dashboard(request):
             total_state = api_device.count()
             total_state_production = api_device.filter(state__icontains="PRODUCTION").count()
             total_state_off = api_device.filter(state__icontains="OFF").count()
+            _total_cadence = api_device.filter(state__icontains="PRODUCTION")
+            total_cadence = _total_cadence.annotate(as_float=Cast('cadence', FloatField())).aggregate(Sum('as_float'))['as_float__sum']
 
             # Availability rate
             try:
@@ -808,8 +834,6 @@ def dashboard(request):
                 calculation_data = 0
             _availability += calculation
             availability_list.append({ "label": obj.hours, "y": calculation })
-
-
 
             # Quality rate
             _input = obj.count_input
@@ -833,13 +857,10 @@ def dashboard(request):
             _performance += round(performance)
             performance_rate.append({ "label": obj.hours, "y": performance })
 
-
-
             # OEE
             data = (calculation_data * i_o_data * performance_data)
             oee_rate.append({ "label": obj.hours, "y": round(data)})
             _oee += round(data)
-
 
             # State occurrences Stop
             if obj.state and obj.state.title() == "Stop" and obj.stop and obj.stop.title() not in stop_label_list:
@@ -849,8 +870,6 @@ def dashboard(request):
             if obj.state and obj.state.title() == "Breakdown" and obj.stop and obj.stop.title() not in breakdown_label_list:
                 breakdown_label_list.append(obj.stop.title())
         
-
-
         asa = zip(devices_details, availability_list, quality_list, performance_rate, oee_rate)
 
 

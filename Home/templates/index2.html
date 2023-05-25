@@ -1,5 +1,5 @@
 {% extends 'base2.html' %}
-{% load static %}
+{% load static scraped %}
 {% block title %}
 Dashboard
 {% endblock %}
@@ -15,7 +15,7 @@ Dashboard
 
   #chartContainer_2::after,
   #chartContainer_1::after,
-  #unit::after,
+  #Units::after,
   #rate::after,
   #mixed::after,
   #stop::after,
@@ -50,7 +50,13 @@ Dashboard
   background: #0131b436 !important;
 }
 
-
+table {
+  width: 90% !important;
+  margin: 0 auto;
+}
+.table-borderd, th, td{
+  padding: 5px;
+}
 
   ul li a {
     font-size: 18px;
@@ -69,6 +75,34 @@ Dashboard
   a {
     color: #1840A8;
   }
+
+  .print-logo, .print-logos{
+  display: none;
+}
+.chart-table{
+  display: none !important;
+}
+@media print {
+  .chart-table, .print-logo, .print-logos {
+    display: block !important;
+  }
+  form {
+    display: none !important;
+  }
+  .print-logos {
+    page-break-before: always;
+  }
+  #Units, #rate, #mixed, #stop, #brackdown {
+    width: 40% !important; 
+    height: 360px;
+
+  }
+  @page { 
+        size: 'A3';
+    }
+}
+
+
 </style>
 
 <body class="skin-blue">
@@ -132,6 +166,20 @@ Dashboard
           </div>
           </div>
     </form>
+    <div class="row print-logo">
+      <div class="col-md-4" style="float: left; width: 33.33%; text-align: center">
+        <!-- logo -->
+        <img alt="Brand" style="width: 100px;" src="{% static 'dist/img/Sans titre.png' %}">
+      </div>
+      <div class="col-md-4" style="float: left; width: 33.33%; text-align: center">
+        <!-- logo -->
+        <h3>{{ selected.designation }}</h3>
+      </div>
+      <div class="col-md-4" style="float: left; width: 33.33%; text-align: center;">
+        <!-- logo -->
+        <h3>{{ date }}</h3>
+      </div>
+    </div>
     <div class="row">
     <div class="col-lg-3 col-xs-6">
       <div class="small-box shadow bg-1">
@@ -152,7 +200,7 @@ Dashboard
     <div class="col-lg-3 col-xs-6">
       <div class="small-box shadow bg-1">
         <div class="inner text-center">
-          <p style="font-size: 20px; margin-bottom: 0; font-weight: 600;">{{oee}}%</p>
+          <p style="font-size: 20px; margin-bottom: 0; font-weight: 600;">{{ oee }}%</p>
           <h3 style="font-size: 12px;">OEE</h3>
         </div>
       </div>
@@ -160,7 +208,7 @@ Dashboard
     <div class="col-lg-3 col-xs-6">
       <div class="small-box shadow bg-2">
         <div class="inner text-center">
-          <p style="font-size: 20px; margin-bottom: 0; font-weight: 600;">{{Availability_rate}}%</p>
+          <p style="font-size: 20px; margin-bottom: 0; font-weight: 600;">{{ availability_rate }}%</p>
           <h3 style="font-size: 12px;">Availability-Rate</h3>
         </div>
       </div>
@@ -169,7 +217,7 @@ Dashboard
 
       <div class="small-box shadow bg-1">
         <div class="inner text-center">
-          <p style="font-size: 20px; margin-bottom: 0; font-weight: 600;">{{Quality_rate}}%</p>
+          <p style="font-size: 20px; margin-bottom: 0; font-weight: 600;">{{ quality_rate }}%</p>
           <h3 style="font-size: 12px;">Quality-Rate</h3>
         </div>
       </div>
@@ -178,7 +226,7 @@ Dashboard
 
       <div class="small-box shadow bg-2">
         <div class="inner text-center">
-          <p style="font-size: 20px; margin-bottom: 0; font-weight: 600;">{{Performance_rate}}%</p>
+          <p style="font-size: 20px; margin-bottom: 0; font-weight: 600;">{{ rate_performance }}%</p>
           <h3 style="font-size: 12px;">Performance-Rate</h3>
         </div>
       </div>
@@ -204,44 +252,352 @@ Dashboard
   </div><!-- /.row -->
 
   <hr>
-  <!-- Main row -->
+  <div class="row print-logos">
+    <div class="col-md-4" style="float: left; width: 33.33%; text-align: center">
+      <!-- logo -->
+      <img alt="Brand" style="width: 100px;" src="{% static 'dist/img/Sans titre.png' %}">
+    </div>
+    <div class="col-md-4" style="float: left; width: 33.33%; text-align: center">
+      <!-- logo -->
+      <h3>{{ selected.designation }}</h3>
+    </div>
+    <div class="col-md-4" style="float: left; width: 33.33%; text-align: center;">
+      <!-- logo -->
+      <h3>{{ date }}</h3>
+    </div>
+  </div>
+
   <div class="row">
     <section class="col-lg-12 connectedSortable mt-5">
-      <div id="chartContainer_1" style="width: 100%; height: 360px; margin-top: 10px;"></div>
-    </section><!-- /.Left col -->
-
-    <section class="col-lg-12 connectedSortable mt-5">
-      <div id="chartContainer_2" style="width: 100%; height: 360px; margin-top: 10px;"></div>
-    </section><!-- /.Left col -->
-
-
-    <section class="col-lg-12 connectedSortable mt-5">
       <div id="Units" style="width: 100%; height: 360px;"></div>
-
     </section><!-- /.Left col -->
+    <section id="unit-table" class="chart-table">
+      <div class="row">
+        <div class="col-md-12">
+          <table style="width: 95%; margin: 0 auto;">
+            <thead>
+              <tr>
+                <th>Date</th>
+                {% for i in date_list %}
+                <th>{{ i }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Product Unit</td>
+                {% for i in date_list %}
+                <td>{{ i|date_product }}</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <td>Scraped Unit</td>
+                {% for i in date_list %}
+                <td>{{ i|date_scraped }}</td>
+                {% endfor %}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+    </div>
+    <div class="row print-logos">
+      <div class="col-md-4" style="float: left; width: 33.33%; text-align: center">
+        <!-- logo -->
+        <img alt="Brand" style="width: 100px;" src="{% static 'dist/img/Sans titre.png' %}">
+      </div>
+      <div class="col-md-4" style="float: left; width: 33.33%; text-align: center">
+        <!-- logo -->
+        <h3>{{ selected.designation }}</h3>
+      </div>
+      <div class="col-md-4" style="float: left; width: 33.33%; text-align: center;">
+        <!-- logo -->
+        <h3>{{ date }}</h3>
+      </div>
+    </div>
+    <div class="row">
     <section class="col-lg-12 connectedSortable mt-5">
       <div id="rate" style="width: 100%; height: 360px;"></div>
-
     </section><!-- /.Left col -->
-
+    <section id="unit-table" class="chart-table">
+      <div class="row">
+        <div class="col-md-12">
+          <table style="width: 95%; margin: 0 auto;">
+            <thead>
+              <tr>
+                <th>Date</th>
+                {% for i in date_list %}
+                <th>{{ i }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Availability-Rate</th>
+                {% for i in date_list %}
+                <td>{{ i|date_availability }}</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <th>Performance-Rate</th>
+                {% for i in date_list %}
+                <td>{{ i|date_performance }}</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <th>Quality-Rate</th>
+                {% for i in date_list %}
+                <td>{{ i|date_quality }}</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <th>OEE</th>
+                {% for i in date_list %}
+                <td>{{ i|date_oee }}</td>
+                {% endfor %}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+    </div>
+    <div class="row print-logos">
+      <div class="col-md-4" style="float: left; width: 33.33%; text-align: center">
+        <!-- logo -->
+        <img alt="Brand" style="width: 100px;" src="{% static 'dist/img/Sans titre.png' %}">
+      </div>
+      <div class="col-md-4" style="float: left; width: 33.33%; text-align: center">
+        <!-- logo -->
+        <h3>{{ selected.designation }}</h3>
+      </div>
+      <div class="col-md-4" style="float: left; width: 33.33%; text-align: center;">
+        <!-- logo -->
+        <h3>{{ date }}</h3>
+      </div>
+    </div>
+    <div class="row">
     <section class="col-lg-12 connectedSortable mt-5">
       <div id="mixed" style="width: 100%; height: 360px; margin-top: 10px;"></div>
     </section><!-- /.Left col -->
-    
+    <section id="rate-table" class="chart-table">
+      <div class="row">
+        <div class="col-md-12">
+          <table style="width: 100%; margin: 0 auto;">
+            <thead>
+              <tr>
+                <th>Days</th>
+                {% for i in date_list %}
+                <th>{{ i }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>Breakdown</th>
+                {% for i in date_list %}
+                <td>{{ i|date_breakdown }}</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <th>Stop</th>
+                {% for i in date_list %}
+                <td>{{ i|date_stop }}</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <th>Off</th>
+                {% for i in date_list %}
+                <td>{{ i|date_off }}</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <th>Unknown</th>
+                {% for i in date_list %}
+                <td>{{ i|date_unknown }}</td>
+                {% endfor %}
+              </tr>
+              <tr>
+                <th>Production</th>
+                {% for i in date_list %}
+                <td>{{ i|date_production }}</td>
+                {% endfor %}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+    </div>
+    <div class="row print-logos">
+      <div class="col-md-4" style="float: left; width: 33.33%; text-align: center">
+        <!-- logo -->
+        <img alt="Brand" style="width: 100px;" src="{% static 'dist/img/Sans titre.png' %}">
+      </div>
+      <div class="col-md-4" style="float: left; width: 33.33%; text-align: center">
+        <!-- logo -->
+        <h3>{{ selected.designation }}</h3>
+      </div>
+      <div class="col-md-4" style="float: left; width: 33.33%; text-align: center;">
+        <!-- logo -->
+        <h3>{{ date }}</h3>
+      </div>
+    </div>
+    <div class="row">
     <div class="col-md-6">
       <section class="col-lg-12 connectedSortable mt-5">
         <div id="stop" style="width: 100%; height: 360px; margin-top: 10px;"></div>
       </section><!-- /.Left col -->
+      <table style="width: 100%; margin: 0 auto;" class="chart-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Date</th>
+          </tr>
+          <tr>
+            <th>Stopage1</th>
+            <th></th>
+          </tr>
+          <tr>
+            <th>Stopage2</th>
+            <th></th>
+          </tr>
+          <tr>
+            <th>Stopage3</th>
+            <th></th>
+          </tr>
+          <tr>
+            <th>Stopage4</th>
+            <th></th>
+          </tr>
+          <tr>
+            <th>Stopage5</th>
+            <th></th>
+          </tr>
+        </thead>
+      </table>
     </div>
     <div class="col-md-6">
       <section class="col-lg-12 connectedSortable mt-5">
         <div id="brackdown" style="width: 100%; height: 360px; margin-top: 10px;"></div>
       </section><!-- /.Left col -->
-
-
+      <table style="width: 100%; margin: 0 auto;" class="chart-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Date</th>
+          </tr>
+          <tr>
+            <th>Breakdown1</th>
+            <th></th>
+          </tr>
+          <tr>
+            <th>Breakdown2</th>
+            <th></th>
+          </tr>
+          <tr>
+            <th>Breakdown3</th>
+            <th></th>
+          </tr>
+          <tr>
+            <th>Breakdown4</th>
+            <th></th>
+          </tr>
+          <tr>
+            <th>Breakdown5</th>
+            <th></th>
+          </tr>
+        </thead>
+      </table>
     </div><!-- /.row (main row) -->
-
+    </div>
+    <div class="row print-logos">
+      <div class="col-md-4" style="float: left; width: 33.33%; text-align: center">
+        <!-- logo -->
+        <img alt="Brand" style="width: 100px;" src="{% static 'dist/img/Sans titre.png' %}">
+      </div>
+      <div class="col-md-4" style="float: left; width: 33.33%; text-align: center">
+        <!-- logo -->
+        <h3>{{ selected.designation }}</h3>
+      </div>
+      <div class="col-md-4" style="float: left; width: 33.33%; text-align: center;">
+        <!-- logo -->
+        <h3>{{ date }}</h3>
+      </div>
+    </div>
+    <div class="row">
+    <section class="col-lg-12 connectedSortable mt-5">
+      <div id="chartContainer_1" style="width: 100%; height: 360px; margin-top: 10px;"></div>
+    </section><!-- /.Left col -->
+    <section id="mtbf-table" class="chart-table">
+      <div class="row">
+        <div class="col-md-12">
+          <table style="width: 100%; margin: 0 auto;">
+            <thead>
+              <tr>
+                <th>Days</th>
+                {% for i in date_list %}
+                <th>{{ i }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>MTBF</th>
+                {% for i in date_list %}
+                <td>{{ i|date_mtbf }}</td>
+                {% endfor %}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
+    </div>
+    <div class="row print-logos">
+      <div class="col-md-4" style="float: left; width: 33.33%; text-align: center">
+        <!-- logo -->
+        <img alt="Brand" style="width: 100px;" src="{% static 'dist/img/Sans titre.png' %}">
+      </div>
+      <div class="col-md-4" style="float: left; width: 33.33%; text-align: center">
+        <!-- logo -->
+        <h3>{{ selected.designation }}</h3>
+      </div>
+      <div class="col-md-4" style="float: left; width: 33.33%; text-align: center;">
+        <!-- logo -->
+        <h3>{{ date }}</h3>
+      </div>
+    </div>
+    <div class="row">
+    <section class="col-lg-12 connectedSortable mt-5">
+      <div id="chartContainer_2" style="width: 100%; height: 360px; margin-top: 10px;"></div>
+    </section><!-- /.Left col -->
+    <section id="mttr-table" class="chart-table">
+      <div class="row">
+        <div class="col-md-12">
+          <table style="width: 100%; margin: 0 auto;">
+            <thead>
+              <tr>
+                <th>Days</th>
+                {% for i in date_list %}
+                <th>{{ i }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>MTTR</th>
+                {% for i in date_list %}
+                <td>{{ i|date_mttr }}</td>
+                {% endfor %}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+    </div>
   </div><!-- /.content-wrapper -->
 
   </div><!-- ./wrapper -->
@@ -405,14 +761,14 @@ Dashboard
           name: "Product Unit",
           showInLegend: true,
           markerSize: 0,
-          dataPoints: {{ speed_data|safe }}
+          dataPoints: {{ units_produced_list|safe }}
         },{
           type: "spline",  
           markerSize: 0,
           axisYType: "secondary",
           name: "Scraped Unit",
           showInLegend: true,
-          dataPoints: {{ distance_covered_data|safe }}
+          dataPoints: {{ speed_data|safe }}
         }]
       });
       chart.render();
