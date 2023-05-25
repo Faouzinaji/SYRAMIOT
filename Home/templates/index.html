@@ -653,7 +653,19 @@ form {
         type: "stackedColumn100",
         name: "{{ label|safe }}",
         showInLegend: true,
+        {% if label == 'Off' %}
+        color: "#8E3B46",
+        {% elif label == 'Production' %}
+        color: "#1840A8",
+        {% elif label == 'Stop' %}
+        color: "#1371D0",
+        {% elif label == 'Unknown_State' %}
+        color: "#93C6D6",
+        {% elif label == 'Breakdown' %}
+        color: "#E1DD8F",
+        {% else %}
         color: "#17"+ {{ forloop.counter }} +"EA2",
+        {% endif %}
         toolTipContent: "{label} <br/> <span style='\"'color: {color};'\"'>{name}</span> <strong>{y} (#percent%)</strong>",
         dataPoints: {{ value|safe }},
       },
@@ -661,15 +673,6 @@ form {
     ]
     });
     chart.render();
-
-
-
-
-
-
-
-
-
 
 
 

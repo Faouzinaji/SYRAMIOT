@@ -887,14 +887,14 @@ def dashboard(request):
         # Breakdown
         breakdown_datapoints = []
         total_breakdown = 0
-        num2 = 0
+        num2 = 3
         for data in breakdown_label_list:
             label_count = devices_details.filter(
                 stop__icontains=data, state__icontains="Breakdown"
             ).count()
             total_breakdown += label_count
             breakdown_datapoints.append({ "y": label_count, "label": data, "color": f"#17{num2}EA2" }),
-            num2 += 1
+            num2 += 3
 
         # Test 2
         all_type = []
