@@ -506,15 +506,22 @@ def dashboard_date(request):
         mtbf_list = []
         mttr_list = []
         total_state = 0
+
+        mtbf = 0
+        mttr = 0
+
+
+
         for date in all_date_set:
             all_state = devices_details.filter(date__lte=date).order_by('date')
             all_state = all_state.exclude(state__icontains="Off").count()
             all_mtbf = devices_details.filter(mtbf__icontains="1", date=date).count()
             try:
-                summary = all_state / all_mtbf
+                summary = (all_state / all_mtbf) / 60
             except Exception as e:
                 print(e)
                 summary = 0
+            mtbf += summary
             mtbf_list.append({ "label": date, "y": summary })
 
             # MTTR
@@ -526,11 +533,12 @@ def dashboard_date(request):
             ).count()
 
             try:
-                summary_mttr = all_mttr / all_mtbf
+                summary_mttr = (all_mttr / all_mtbf) / 60
             except Exception as e:
                 print(e)
                 summary_mttr = 0
             total_state += 1
+            mttr += summary_mttr
             mttr_list.append({ "label": date, "y": summary_mttr })
 
 
@@ -713,8 +721,8 @@ def dashboard_date(request):
             "selected": my_device, "availability_rate": _availability_rate,
             "st": datestrt, "quality_rate": _quality_rate,
             "ed": dateend, "scraped_unit": 0, "rate_performance": _performance_rate,
-            "mtbf": devices_details.filter(mtbf="1", hours="").count(),
-            "mttr": devices_details.filter(mttr="1").count(),
+            "mtbf": mtbf,
+            "mttr": mttr,
             'data_in_min': data_in_min, "total_breakdown": total_breakdown,
             "total_stop": total_stop, "scraped_unit": scraped_unit,
             "datapoints": datapoints, "breakdown_datapoints": breakdown_datapoints,
