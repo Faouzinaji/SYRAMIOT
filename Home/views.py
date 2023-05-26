@@ -875,8 +875,9 @@ def dashboard(request):
                 stop_label_list.append(obj.stop.title())
 
             # State occurrences Breakdown
-            if obj.state and obj.state.title() == "Breakdown" and obj.stop and obj.stop.title() not in breakdown_label_list:
-                breakdown_label_list.append(obj.stop.title())
+            for _obj in api_device:
+                if _obj.state and _obj.state.title() == "Breakdown" and _obj.stop and _obj.stop.title() not in breakdown_label_list:
+                    breakdown_label_list.append(_obj.stop.title())
         
         asa = zip(devices_details, availability_list, quality_list, performance_rate, oee_rate)
 
@@ -897,9 +898,11 @@ def dashboard(request):
         total_breakdown = 0
         num2 = 3
         for data in breakdown_label_list:
+            print(data)
             label_count = devices_details.filter(
                 stop__icontains=data, state__icontains="Breakdown"
             ).count()
+            print(label_count)
             total_breakdown += label_count
             breakdown_datapoints.append({ "y": label_count, "label": data, "color": f"#17{num2}EA2" }),
             num2 += 3
