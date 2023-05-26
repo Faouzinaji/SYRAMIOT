@@ -866,8 +866,9 @@ def dashboard(request):
             quality_list.append({ "label": obj.hours, "y": i_o })
             
             # Performance rate
+            print(f"total_output {_output}, total_cadence{total_cadence}")
             try:
-                performance_data = (total_output / total_cadence)
+                performance_data = (_output / total_cadence)
                 performance = round(performance_data * 100)
             except Exception as e:
                 performance = 0
