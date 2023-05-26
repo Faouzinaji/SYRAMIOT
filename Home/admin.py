@@ -15,7 +15,8 @@ class API_Device_dataAdmin(admin.ModelAdmin):
         'date', 'time', 'count_input', 'count_output'
     )
 
-    search_fields = ('date', 'serial_no')
+    search_fields = ('date', 'serial_no', 'state')
+    list_filter = ('hours', )
 
 
 @admin.register(APIKey)
