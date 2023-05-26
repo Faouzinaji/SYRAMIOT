@@ -598,16 +598,16 @@ def dashboard_date(request):
             # Availability rate
             try:
                 calculation_data = (
-                    (total_state - total_state_off - total_state_production) / (total_state - total_state_off)
+                    (total_state_production) / (total_state - total_state_off)
                 )
-                calculation = calculation_data
+                calculation = round(calculation_data * 100)
             except Exception as e:
                 print(e)
                 calculation = 0
                 calculation_data = 0
             _availability_rate += calculation
             availability_list.append({ "label": obj.date, "y": calculation })
-            
+
             # Quality rate
             _input = obj.count_input
             _output = obj.count_output
@@ -829,13 +829,25 @@ def dashboard(request):
             _total_cadence = api_device.filter(state__icontains="PRODUCTION")
             total_cadence = _total_cadence.annotate(as_float=Cast('cadence', FloatField())).aggregate(Sum('as_float'))['as_float__sum']
 
+            _input = API_Device_data.objects.filter(
+                serial_no=my_device.serial_no,
+                device_password=my_device.device_password,
+                date=date, hours=obj.hours
+            ).annotate(as_float=Cast('count_input', FloatField())).aggregate(Sum('as_float'))['as_float__sum']
+
+            _output = API_Device_data.objects.filter(
+                serial_no=my_device.serial_no,
+                device_password=my_device.device_password,
+                date=date, hours=obj.hours
+            ).annotate(as_float=Cast('count_output', FloatField())).aggregate(Sum('as_float'))['as_float__sum']
+
+
             # Availability rate
             try:
                 calculation_data = (
-                    (total_state - total_state_off - total_state_production) / (total_state - total_state_off)
+                    (total_state_production) / (total_state - total_state_off)
                 )
-                # .85 * 100
-                calculation = round(calculation_data)
+                calculation = round(calculation_data * 100)
             except Exception as e:
                 print(e)
                 calculation = 0
@@ -844,29 +856,26 @@ def dashboard(request):
             availability_list.append({ "label": obj.hours, "y": calculation })
 
             # Quality rate
-            _input = obj.count_input
-            _output = obj.count_output
             try:
-                i_o_data = (float(_output) / float(_input))
-                i_o = (round(i_o_data))
+                i_o_data = (_output - _input) / _output
+                i_o = round(i_o_data * 100)
             except Exception as e:
-                i_o = float(100)
-                i_o_data = float(1)
+                i_o = 0
+                i_o_data = 0
             _quality += round(i_o)
             quality_list.append({ "label": obj.hours, "y": i_o })
             
             # Performance rate
             try:
                 performance_data = (total_output / total_cadence)
-                performance = round(performance_data)
+                performance = round(performance_data * 100)
             except Exception as e:
-                performance = float(1)
-                performance_data = float(1)
+                performance = 0
+                performance_data = 0
             _performance += round(performance)
             performance_rate.append({ "label": obj.hours, "y": performance })
 
-            # OEE
-            data = (calculation_data * i_o_data * performance_data)
+            data = (calculation_data * i_o_data * performance_data) * 100
             oee_rate.append({ "label": obj.hours, "y": round(data)})
             _oee += round(data)
 
