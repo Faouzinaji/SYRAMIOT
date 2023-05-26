@@ -517,7 +517,7 @@ def dashboard_date(request):
             all_state = all_state.exclude(state__icontains="Off").count()
             all_mtbf = devices_details.filter(mtbf__icontains="1", date=date).count()
             try:
-                summary = (all_state / all_mtbf) / 60
+                summary = round((all_state / all_mtbf) / 60)
             except Exception as e:
                 print(e)
                 summary = 0
@@ -533,7 +533,7 @@ def dashboard_date(request):
             ).count()
 
             try:
-                summary_mttr = (all_mttr / all_mtbf) / 60
+                summary_mttr = round((all_mttr / all_mtbf) / 60)
             except Exception as e:
                 print(e)
                 summary_mttr = 0
